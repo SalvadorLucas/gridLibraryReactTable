@@ -9,12 +9,14 @@ import styles from "./assets/jss/material-dashboard-pro-react/customCheckboxRadi
 
 const useStyles = makeStyles(styles);
 
-export default function CheckboxExample(props) {
-
-  
+export default function CheckboxComponent(props) {
+  const [checked, setChecked] = React.useState({arrChecked:[0]});
 
   const handleToggle = value => {
-    props.handleToggle(value)
+    const newChecked = props.handleToggle(value);
+    setChecked({
+      arrChecked: newChecked
+    });
   };
 
   const classes = useStyles();
@@ -23,7 +25,7 @@ export default function CheckboxExample(props) {
       <Checkbox
         tabIndex={-1}
         onClick={() => handleToggle(props.id)}
-        // checked={}
+        checked={checked.arrChecked.indexOf(props.id) !== -1 ? true : false}
         checkedIcon={<Check className={classes.checkedIcon} />}
         icon={<Check className={classes.uncheckedIcon} />}
         classes={{

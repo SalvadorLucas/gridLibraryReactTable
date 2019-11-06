@@ -1,10 +1,11 @@
 import React from "react";
 import _ from "lodash";
-
 // Import React Table
 import ReactTable from "react-table";
+//HOCS
+import selectTableHOC from 'react-table/lib/hoc/selectTable'
+//STYLES
 import "react-table/react-table.css";
-import './styles.css'
 import './assets/scss/material-dashboard-pro-react/plugins/_plugin-react-table.scss'
 // @material-ui components
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
@@ -21,10 +22,10 @@ import CardHeader from "./components/Card/CardHeader.js";
 import ModalDelete from './modalDelete'
 import ModalPut from './modalPut'
 import ModalPost from './modalPost'
-import CheckBox from './checkBoxComponent'
 import Pagination from './paginationComponent'
 import Axios from "axios";
 
+const SelectTable = selectTableHOC(ReactTable);
 const theme = createMuiTheme(muiTheme); 
 
 export default class App extends React.Component {
@@ -37,9 +38,9 @@ export default class App extends React.Component {
       entity: this.props.entity,
       columns: this.props.columns,
       id: this.props.id,
-      // token: JSON.parse(localStorage.getItem('auth_token')).access_token
-      token: '609afda2-7e32-3626-b353-99f775cd86c7',
-      rowsChecked: [],
+      token: this.props.token,
+      // token: '845f6c4d-0bdd-37ec-8bf4-5d55e346b4c2',
+      rowsSelected: [0],
       selectAll: false,
       page: 0,
       pageSize: 5,
@@ -47,21 +48,11 @@ export default class App extends React.Component {
       filtered: [],
       sorted: []
     };
-    this.onClick = this.handleToggle.bind(this)
+    this.toggleSelection = this.toggleSelection.bind(this)
     this.fetchData = this.fetchData.bind(this);
-    this.columns = this.generateHeader()
     this.flag = this.changePage.bind(this)//FLAG TO REFRESH GRID
     this.table = React.createRef()
   }
-
-  checkbox(props, url, entity, datafields, id, token){
-    return (
-    <CheckBox 
-      handleToggle={this.onClick} 
-      id={props[id]} 
-      checked={this.state.rowsChecked}/>
-      )
-    }
 
   actions(props, url, entity, datafields, id, token){
     return (
@@ -101,7 +92,7 @@ export default class App extends React.Component {
     </MuiThemeProvider>)
   }
 
-  requestData(pageSize, sorted, filtered, url, entity, datafields, id, token) {
+  requestData(pageSize, sorted, filtered, url, entity, datafields, id, token, onClick, checkFlag) {
     return new Promise((resolve, reject) => {
   
       // You can retrieve your data however you want, in this case, we will just use some local data.
@@ -115,7 +106,6 @@ export default class App extends React.Component {
            * Adding actions custom buttons
            */
           filteredData.map((item) =>{
-            item['checkbox']=this.checkbox(item, url, entity, datafields, id, token)
             item['actions']=this.actions(item, url, entity, datafields, id, token)
           })
           /**
@@ -189,29 +179,25 @@ export default class App extends React.Component {
       this.state.columns,
       this.state.id,
       this.state.token,
+      this.onClick
     )
     .then(res => {
       // Now just get the rows of data to your React Table (and update anything else like total pages or loading)
       this.setState({
-        data: res.rows,
+        data: [],
         pages: res.pages,
-        loading: false
+        loading: false,
+        rowsSelected:[]
+      },()=>{
+        this.setState({
+          data: res.rows,
+        })
       });
     });
   }
 
   generateHeader(){
     let columns = []
-    columns.push({
-      Header: <CheckBox 
-                handleToggle={this.onClick} 
-                id={-2} 
-                checked={this.state.rowsChecked}/>,
-      accessor: 'checkbox',
-      sortable: false,
-      filterable: false,
-      width: 60
-    })
     this.props.columns.map((item) => {
       if(item.hidden == false || !item.hidden){
         columns.push({
@@ -225,77 +211,138 @@ export default class App extends React.Component {
       accessor: "actions",
       sortable: false,
       filterable: false,
-      width: 170
+      width: 100
     })
     return columns
   }
 
-  handleToggle(value) {
-    const currentIndex = this.state.rowsChecked.indexOf(value);
-    const newChecked = this.state.rowsChecked;
-
+  toggleSelection(key, shift, row) {
+    const currentIndex = this.state.rowsSelected.indexOf(row[this.props.id]);
+    let newChecked = this.state.rowsSelected;
     if (currentIndex === -1) {
-      newChecked.push(value);
+      newChecked.push(row[this.props.id]);
     } else {
       newChecked.splice(currentIndex, 1);
     }
     this.setState({
-      rowsChecked: newChecked
-    })
-  };
-
-  changePage(page){
-    this.setState({
-      page: page,
-      url: this.buildUrl(this.props.host, this.props.entity, this.props.columns, page, this.state.pageSize)
-    },()=>{
-      this.fetchData(this.table.current.state)
+      rowsSelected: newChecked
     })
   }
 
+  toggleAll(){
+    const selectAll = this.state.selectAll ? false : true;
+    const selection = [];
+    if (selectAll) {
+      // we need to get at the internals of ReactTable
+      const wrappedInstance = this.table.current.wrappedInstance;
+      // the 'sortedData' property contains the currently accessible records based on the filter and sort
+      const currentRecords = wrappedInstance.getResolvedState().sortedData;
+      // we just push all the IDs onto the selection array
+      currentRecords.forEach(item => {
+        selection.push(item._original[this.props.id]);
+      });
+    }
+    this.setState({
+      selectAll: selectAll,
+      rowsSelected: selection
+    });
+  }
+
+  changePage(page){
+    this.setState({
+      selectAll: false,
+      page: page,
+      url: this.buildUrl(this.props.host, this.props.entity, this.props.columns, page, this.state.pageSize)
+    },()=>{
+      this.fetchData(this.table.current.wrappedInstance.state)
+    })
+  }
+
+  changeSize(size){
+    this.setState({
+      pageSize: size,
+      url: this.buildUrl(this.props.host, this.props.entity, this.props.columns, this.state.page, size)
+    },()=>{
+      this.fetchData(this.table.current.wrappedInstance.state)
+    })
+  }
+
+  isSelected(key){
+    /*
+      Instead of passing our external selection state we provide an 'isSelected'
+      callback and detect the selection state ourselves. This allows any implementation
+      for selection (either an array, object keys, or even a Javascript Set object).
+    */
+    return this.state.rowsSelected.includes(key);
+  };
 
   render() {
     return (
       <GridContainer>
         <GridItem xs={12}>
           <Card>
-            <CardHeader 
-            color="info" icon>
-              <CardIcon 
-              color="success" 
-              style={{width:20, height:20}}>
-                <Assignment />
-              </CardIcon>
-              <h4 style={{color:'black'}}>{this.props.entity.replace('-',' ').toUpperCase()}</h4>
-            </CardHeader>
+            <table>
+              <tbody>
+                <tr>
+                  <td>
+                  <CardHeader 
+                  color="info" icon>
+                    <CardIcon 
+                    color="success" 
+                    style={{width:20, height:20}}>
+                      <Assignment />
+                    </CardIcon>
+                    <h4 style={{color:'black'}}>{this.props.entity.replace('-',' ').toUpperCase()}</h4>
+                  </CardHeader>
+                  </td>
+                  <td>
+                    <CardHeader>
+                      <MuiThemeProvider theme={theme}>
+                        <ModalPost 
+                          settingForeignKeys={this.props.settingForeignKeys}//SETTING FOREIGN KEYS
+                          columns={this.props.columns}//COLUMNS
+                          host={this.props.host}//HOST
+                          entity={this.props.entity}//ENTITY
+                          token={this.state.token}//TOKEN
+                          refreshGrid={this.refreshGrid}//REFRESH GRID
+                        ></ModalPost>
+                      </MuiThemeProvider>
+                  </CardHeader>
+                  </td>
+                </tr>                
+              </tbody>
+            </table>
             <CardBody>
-            <ReactTable
-              ref={this.table}
-              showPagination={false}
-              columns={this.columns}
-              manual // Forces table not to paginate or sort automatically, so we can handle it server-side
-              data={this.state.data}
-              loading={this.state.loading} // Display the loading overlay when we need it
-              onFetchData={this.fetchData} // Request new data when things change
-              filterable
-              defaultPageSize={this.state.pageSize}
-              className="-striped -highlight"
-            />
-            <Pagination 
-              pages={this.state.pages} 
-              currentPage={this.state.page} 
-              onClick={this.flag}
-              />
-            <MuiThemeProvider theme={theme}>
-              <ModalPost 
-                settingForeignKeys={this.props.settingForeignKeys}//SETTING FOREIGN KEYS
-                columns={this.props.columns}//COLUMNS
-                host={this.props.host}//HOST
-                entity={this.props.entity}//ENTITY
-                token={this.state.token}//TOKEN
-              ></ModalPost>
-            </MuiThemeProvider>
-          </CardBody>
+              <SelectTable
+                ref={this.table}
+                showPagination={false}
+                //HOC configuration
+                keyField={this.props.id}
+                isSelected={ key =>
+                  this.isSelected(key)
+                }
+                selectType={'checkbox'}
+                toggleSelection={(key, shift, row)=>{
+                  this.toggleSelection(key, shift, row)
+                }}
+                selectAll={this.state.selectAll}
+                toggleAll={()=>this.toggleAll()}
+                //REACTABLE configuration
+                columns = {this.generateHeader()}
+                manual // Forces table not to paginate or sort automatically, so we can handle it server-side
+                data={this.state.data}
+                loading={this.state.loading} // Display the loading overlay when we need it
+                onFetchData={this.fetchData} // Request new data when things change
+                filterable
+                defaultPageSize={this.state.pageSize}
+                className="-striped -highlight"
+                />
+              <Pagination 
+                pages={this.state.pages} 
+                currentPage={this.state.page} 
+                onClick={this.flag}
+                />
+            </CardBody>
           </Card>
         </GridItem>
     </GridContainer>

@@ -32,7 +32,6 @@ const useStyles = makeStyles(theme => ({
           setData(res)
           )
       }, [])
-
     
     function getItemSetting(columns) {
       let setting = {}

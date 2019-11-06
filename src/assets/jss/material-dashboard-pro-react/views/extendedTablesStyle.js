@@ -1,9 +1,9 @@
-import buttonGroupStyle from "assets/jss/material-dashboard-pro-react/buttonGroupStyle.js";
-import customCheckboxRadioSwitch from "assets/jss/material-dashboard-pro-react/customCheckboxRadioSwitch.js";
+import buttonGroupStyle from "../../material-dashboard-pro-react/buttonGroupStyle";
+import customCheckboxRadioSwitch from "../../material-dashboard-pro-react/customCheckboxRadioSwitch";
 import {
   cardTitle,
   grayColor
-} from "assets/jss/material-dashboard-pro-react.js";
+} from "../../material-dashboard-pro-react.js";
 
 const extendedTablesStyle = {
   ...customCheckboxRadioSwitch,

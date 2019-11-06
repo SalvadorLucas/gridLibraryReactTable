@@ -17,7 +17,7 @@ export default function Example(props){
             pageses=1
         }
             pages.push({text:'PREV', onClick:()=>{actionButton(props.currentPage-1)}})        
-            if(props.pages>10){
+            if(props.pages>30){
                 //MAKE DYNAMIC PAGINATION
             }else{
                 for(let i=0; i<pageses; i++){

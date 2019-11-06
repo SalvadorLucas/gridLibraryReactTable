@@ -1,8 +1,8 @@
 import React from 'react';
 //IMPORTS MATERIAL UI
-import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
-import Button from '@material-ui/core/Button';
+// import Button from '@material-ui/core/Button';
+import Button from "./components/CustomButtons/Button.js";
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -12,12 +12,14 @@ import { makeStyles } from '@material-ui/core/styles';
 //IMPORTS COMPONENTS DATE & SELECT
 import DateComponent from './dateComponent'
 //CREATE STYLES
-const useStyles = makeStyles(theme => ({
+const useStylesTexfield = makeStyles(theme => ({
   textField: {
     marginLeft: theme.spacing(0),
     marginRight: theme.spacing(0),
   },
 }))
+import styles from "./assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
+const useStyles = makeStyles(styles);
 
 export default function FormDialog(props) {
   const [open, setOpen] = React.useState(false)//STATE FOR OPEN OR CLOSE MODAL
@@ -25,26 +27,14 @@ export default function FormDialog(props) {
   var rowData = props.rowData//ROW DATA
   const id = props.id//ROW ID
   const classes = useStyles();
-  function labelsForm(){
-    var label = []    
-    columns.map((element) =>{ //CHECK columnsFIELDS
-      if(element.form == true){ //CREATE LABELS FOR NORMAL INPUT COMPONENT
-        label.push({
-          'label':element.header,
-          'name':element.accessor,
-          'type':element.type
-        })
-      }
-    })
-    return label
-}
+  const classesTextfield = useStylesTexfield();
 
   function handleClickOpen() {
     setOpen(true);
   }
 
   function createUpdateForm(item){
-    if (item.form==true){
+    if (item.form==true && !item.foreignKeyEntity){
     switch(item.type){
       case 'date':
         return(
@@ -59,7 +49,7 @@ export default function FormDialog(props) {
         return (
           <TextField 
             key={item.accessor} 
-            className={classes.textField} 
+            className={classesTextfield.textField} 
             autoFocus 
             margin={'normal'} 
             InputLabelProps={{shrink: true,}} 
@@ -76,7 +66,7 @@ export default function FormDialog(props) {
         return (
           <TextField 
             key={item.accessor} 
-            className={classes.textField} 
+            className={classesTextfield.textField} 
             autoFocus 
             margin={'normal'} 
             InputLabelProps={{shrink: true,}} 
@@ -93,25 +83,21 @@ export default function FormDialog(props) {
     }
   }
 
-  function getLabel(columnsfield){
-    return columnsfield.toUpperCase()
-  }
-
   function handleClose() {
     setOpen(false);
   }
   
-  function getDate() {
-    let date =  new Date()
-    let anio = date.getFullYear()
-    let mes = date.getMonth()+1
-    let dia = date.getDate()
-    if(dia<9){
-      dia='0'+dia
-    }
-    date = anio + '-' + mes + '-' + dia
-    return date
-  }
+  // function getDate() {
+  //   let date =  new Date()
+  //   let anio = date.getFullYear()
+  //   let mes = date.getMonth()+1
+  //   let dia = date.getDate()
+  //   if(dia<9){
+  //     dia='0'+dia
+  //   }
+  //   date = anio + '-' + mes + '-' + dia
+  //   return date
+  // }
   
   function buildBody(){
     var body = new Object() //OBJECT TO SAVE ALL columns
@@ -159,22 +145,16 @@ export default function FormDialog(props) {
     }
     handleClose()
   }
-
-  // function createComboBox(element){//CREATE COMBO BOX COMPONENT WITH FOREIGN KEYS
-  //   cont++
-  //   return(
-  //     <SelectComponent 
-  //     key={fk[cont-1].name+cont} //KEY FOR NEW COMPONENT
-  //     name={fk[cont-1].name} //NAME
-  //     label={getLabel(fk[cont-1].name)} //LABEL FOR COMPONENT
-  //     items={element[fk[cont-1].name]}/> //ITEMS OPTIONS IN SELECT COMPONENT
-  //   )
-  // }
     return (
       <div>
-        <Fab size={'small'} color="secondary" aria-label="edit" onClick={handleClickOpen}>
+        <Button
+          color={'success'}
+          simple
+          className={classes.actionButton}
+          onClick={handleClickOpen}
+        >
           <EditIcon />
-        </Fab>
+        </Button>
         <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
           <DialogTitle >MODIFY {props.entity.replace('-','_').toUpperCase()}?</DialogTitle>   
           <form className={'commentForm'} onSubmit={put} method={'PUT'}>
@@ -184,10 +164,10 @@ export default function FormDialog(props) {
             )}
           </DialogContent>
           <DialogActions>
-            <Button variant={'contained'} onClick={handleClose} color={'secondary'}>
+            <Button className={classes.actionButton} onClick={handleClose} color={'transparent'}>
               CANCEL
             </Button>
-            <Button variant={'contained'} type={'submit'} color={'primary'}>
+            <Button className={classes.actionButton} type={'submit'} color={'success'}>
               SAVE
             </Button>
           </DialogActions>        

@@ -1,18 +1,22 @@
 import React from 'react';
 //IMPORTS MATERIAL UI
-import Fab from '@material-ui/core/Fab';
 import DeleteIcon from '@material-ui/icons/Delete'
-import Button from '@material-ui/core/Button';
+import Button from "./components/CustomButtons/Button.js";
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContentText from '@material-ui/core/DialogContentText';
+import { makeStyles } from '@material-ui/core/styles';
+
+import styles from "./assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
+const useStyles = makeStyles(styles);
 
 export default function FormDialog(props) {
-
+  const classes = useStyles();
   const [open, setOpen] = React.useState(false)//MODAL STATE
   var rowData = props.rowData//ROW DATA
+
     function handleClickOpen() {
       setOpen(true);
     }
@@ -50,9 +54,14 @@ export default function FormDialog(props) {
 
   return (
     <div align={'right'}>
-      <Fab size={'small'} color="secondary" aria-label="delete" onClick={handleClickOpen}>
-        <DeleteIcon />
-      </Fab>
+      <Button
+          color={'success'}
+          simple
+          className={classes.actionButton}
+          onClick={handleClickOpen}
+        >
+          <DeleteIcon />
+        </Button>
       <Dialog 
       open={open} 
       onClose={handleClose} 
@@ -65,10 +74,10 @@ export default function FormDialog(props) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button variant={'contained'} onClick={handleClose} color={'secondary'}>
+          <Button className={classes.actionButton} onClick={handleClose} color={'transparent'}>
             No
           </Button>
-          <Button variant={'contained'} type={'submit'} color={'primary'}>
+          <Button className={classes.actionButton} type={'submit'} color={'danger'}>
             Yes
           </Button>
         </DialogActions>        

@@ -1,8 +1,7 @@
 import React from 'react';
 //IMPORTS MATERIAL UI
-import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
-import Button from '@material-ui/core/Button';
+import Button from "./components/CustomButtons/Button.js";
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -16,12 +15,14 @@ import SelectComponent from './selectComponent'
 // import AddAlert from "@material-ui/icons/AddAlert";
 // import Snackbar from "./Snackbar.js";
 //CREATE STYLES
-const useStyles = makeStyles(theme => ({
+const useStylesTexfield = makeStyles(theme => ({
   textField: {
     marginLeft: theme.spacing(0),
     marginRight: theme.spacing(0),
   },
-}));
+}))
+import styles from "./assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
+const useStyles = makeStyles(styles);
 
 export default function FormDialog(props) {
 
@@ -29,6 +30,7 @@ export default function FormDialog(props) {
   const columns = props.columns//COLUMNS
   const settingForeignKeys = props.settingForeignKeys//ARRAY FOREIGN KEYS
   const classes = useStyles();
+  const classesTextfield = useStylesTexfield();
 
   function handleClickOpen() {//OPEN MODAL
     setOpen(true);
@@ -58,7 +60,7 @@ export default function FormDialog(props) {
             return (
               <TextField //CREATE NUMBER COMPONENT IN FORM
                 key={item.accessor} //KEY FOR NEW COMPONENT
-                className={classes.textField} //THEME FOR COMPONENT
+                className={classesTextfield.textField} //THEME FOR COMPONENT
                 autoFocus //ANIMATION FOR COMPONENT
                 margin={'normal'} //MARGIN TYPE
                 InputLabelProps={{shrink: true,}} //PROPS FOR LABEL 
@@ -74,7 +76,7 @@ export default function FormDialog(props) {
             return (
               <TextField //CREATE TEXT COMPONENT IN FORM
                 key={item.accessor} //KEY FOR NEW COMPONENT
-                className={classes.textField} //THEME
+                className={classesTextfield.textField} //THEME
                 autoFocus //ANIMATION
                 margin={'normal'} //MARGIN TYPE
                 InputLabelProps={{shrink: true,}} //PROPS FOR LABEL
@@ -169,9 +171,14 @@ export default function FormDialog(props) {
 
   return (
     <div align={'right'}>
-      <Fab size={'small'} color="secondary" aria-label="add" onClick={handleClickOpen}>
+      <Button
+          justIcon
+          round
+          color={'success'}
+          onClick={handleClickOpen}
+        >
         <AddIcon />
-      </Fab>
+      </Button>
       <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle >NEW {props.entity.replace('-',' ').toUpperCase()}</DialogTitle>        
         <form className={'commentForm'} onSubmit={post} method={'POST'}>
@@ -181,10 +188,10 @@ export default function FormDialog(props) {
           )}
         </DialogContent>
         <DialogActions>
-          <Button variant={'contained'} onClick={handleClose} color={'secondary'}>
+          <Button className={classes.actionButton} onClick={handleClose} color={'transparent'}>
             Cancel
           </Button>
-          <Button variant={'contained'} type={'submit'} color={'primary'}>
+          <Button className={classes.actionButton} type={'submit'} color={'success'}>
             Done
           </Button>
         </DialogActions>        

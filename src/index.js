@@ -57,6 +57,7 @@ export default class extends Component {
       entity={'service'}
       id={'id'}
       settingForeignKeys={settingForeignKeys}
+      token={'845f6c4d-0bdd-37ec-8bf4-5d55e346b4c2'} 
       ></Table>
     </div>
   }

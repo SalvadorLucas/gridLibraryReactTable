@@ -1,7 +1,7 @@
 {
-  "name": "ebs-grid",
+  "name": "ebs-grid-lib",
   "version": "0.0.1",
-  "description": "ebs-grid React component",
+  "description": "ebs-grid-lib React component",
   "main": "lib/index.js",
   "files": [
     "css",

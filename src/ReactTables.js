@@ -24,7 +24,7 @@ import ModalPut from './modalPut'
 import ModalPost from './modalPost'
 import Pagination from './paginationComponent'
 import Axios from "axios";
-
+import DorpDownComponent from './dropDownComponent'
 const SelectTable = selectTableHOC(ReactTable);
 const theme = createMuiTheme(muiTheme); 
 
@@ -46,11 +46,14 @@ export default class App extends React.Component {
       pageSize: 5,
       url: this.buildUrl(this.props.host, this.props.entity, this.props.columns, 0, 5),
       filtered: [],
-      sorted: []
+      sorted: [],
+      startPage: 0,
+      endPage: 5,
     };
     this.toggleSelection = this.toggleSelection.bind(this)
     this.fetchData = this.fetchData.bind(this);
     this.flag = this.changePage.bind(this)//FLAG TO REFRESH GRID
+    this.changePageSize = this.changeSize.bind(this)//FLAG TO CHANGE GRID SIZE
     this.table = React.createRef()
   }
 
@@ -72,9 +75,6 @@ export default class App extends React.Component {
                 url={url}//HOST
                 token={token}//TOKEN FOR API
               ></ModalPut>
-          </td>
-          <td>
-            <p>{' '}</p>
           </td>
           <td>
             {/* DELETE COMPONENT */}
@@ -198,6 +198,13 @@ export default class App extends React.Component {
 
   generateHeader(){
     let columns = []
+    columns.push({
+      Header: "Actions",
+      accessor: "actions",
+      sortable: false,
+      filterable: false,
+      width: 80
+    })
     this.props.columns.map((item) => {
       if(item.hidden == false || !item.hidden){
         columns.push({
@@ -205,13 +212,6 @@ export default class App extends React.Component {
           accessor: item.accessor
         })
       }
-    })
-    columns.push({
-      Header: "Actions",
-      accessor: "actions",
-      sortable: false,
-      filterable: false,
-      width: 100
     })
     return columns
   }
@@ -256,12 +256,39 @@ export default class App extends React.Component {
     },()=>{
       this.fetchData(this.table.current.wrappedInstance.state)
     })
+    //PAGINATOR CONDITIONS
+    switch(page){
+      case this.state.pages-1:
+          this.setState({
+            endPage: this.state.pages,
+            startPage: this.state.pages-5
+          })
+        break;
+      case 0:
+          this.setState({
+            endPage: 5,
+            startPage: 0
+          })
+        break;
+      case this.state.endPage:
+          this.setState({
+            endPage: this.state.endPage+5,
+            startPage: this.state.startPage+5
+          })
+        break;
+      case this.state.startPage-1:
+          this.setState({
+            endPage: this.state.endPage-5,
+            startPage: this.state.startPage-5
+          })
+        break;
+    }
   }
 
   changeSize(size){
     this.setState({
-      pageSize: size,
-      url: this.buildUrl(this.props.host, this.props.entity, this.props.columns, this.state.page, size)
+      pageSize: Number(size),
+      url: this.buildUrl(this.props.host, this.props.entity, this.props.columns, this.state.page, Number(size))
     },()=>{
       this.fetchData(this.table.current.wrappedInstance.state)
     })
@@ -292,9 +319,11 @@ export default class App extends React.Component {
                     style={{width:20, height:20}}>
                       <Assignment />
                     </CardIcon>
-                    <h4 style={{color:'black'}}>{this.props.entity.replace('-',' ').toUpperCase()}</h4>
+                    <h2 style={{color:'black'}}>{this.props.title}</h2>
                   </CardHeader>
                   </td>
+                </tr>                
+                <tr>
                   <td>
                     <CardHeader>
                       <MuiThemeProvider theme={theme}>
@@ -307,9 +336,9 @@ export default class App extends React.Component {
                           refreshGrid={this.refreshGrid}//REFRESH GRID
                         ></ModalPost>
                       </MuiThemeProvider>
-                  </CardHeader>
+                    </CardHeader>
                   </td>
-                </tr>                
+                </tr>
               </tbody>
             </table>
             <CardBody>
@@ -337,11 +366,26 @@ export default class App extends React.Component {
                 defaultPageSize={this.state.pageSize}
                 className="-striped -highlight"
                 />
-              <Pagination 
-                pages={this.state.pages} 
-                currentPage={this.state.page} 
-                onClick={this.flag}
-                />
+                <table>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <DorpDownComponent
+                          onChange={this.changePageSize}
+                        />
+                      </td>
+                      <td>
+                        <Pagination 
+                          pages={this.state.pages}
+                          startPage={this.state.startPage}
+                          endPage={this.state.endPage}
+                          currentPage={this.state.page} 
+                          onClick={this.flag}
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
             </CardBody>
           </Card>
         </GridItem>

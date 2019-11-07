@@ -56,8 +56,9 @@ export default class extends Component {
       host={'https://ebs.cimmyt.org:8253/api-sm/0.2.1/'}
       entity={'service'}
       id={'id'}
+      title={'Services'}
       settingForeignKeys={settingForeignKeys}
-      token={'845f6c4d-0bdd-37ec-8bf4-5d55e346b4c2'} 
+      token={'1de09e80-a07a-3a3f-b403-4cddcbb0dfb6'} 
       ></Table>
     </div>
   }

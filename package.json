@@ -1,7 +1,7 @@
 {
-  "name": "cimmyt-grid-lib",
-  "version": "1.0.0",
-  "description": "cimmyt-grid-lib React component",
+  "name": "ebs-grid",
+  "version": "0.0.1",
+  "description": "ebs-grid React component",
   "main": "lib/index.js",
   "files": [
     "css",

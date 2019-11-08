@@ -1,10 +1,10 @@
-# cimmyt-grid-lib
+# ebs-grid-lib
 
 [![Travis][build-badge]][build]
 [![npm package][npm-badge]][npm]
 [![Coveralls][coveralls-badge]][coveralls]
 
-Describe cimmyt-grid-lib here.
+Describe ebs-grid-lib here.
 
 [build-badge]: https://img.shields.io/travis/user/repo/master.png?style=flat-square
 [build]: https://travis-ci.org/user/repo

@@ -26,7 +26,7 @@ import Pagination from './paginationComponent'
 import Axios from "axios";
 import DorpDownComponent from './dropDownComponent'
 const SelectTable = selectTableHOC(ReactTable);
-const theme = createMuiTheme(muiTheme); 
+const theme = createMuiTheme(muiTheme);   
 
 export default class App extends React.Component {
   constructor(props) {
@@ -162,6 +162,7 @@ export default class App extends React.Component {
       }
     })
     base+='page='+page+'&page_size='+pageSize
+    console.log(base)
     return base
   }
 

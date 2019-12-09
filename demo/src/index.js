@@ -10,6 +10,11 @@ const columns = [
   { header:'Description', accessor:'description', type:'text', form: true, required: true, url:true},
   { header:'Service Status', accessor:'service_status', type:'text', form: false, required: true, url:true },
   { header:'Name', accessor:'name', type:'text', form: true, required: true, url: true },
+  // { header:'Reference', accessor:'reference', type:'text', form: true, required: true, url: true },
+  // { header:'Email', accessor:'email', type:'text', form: true, required: true, url: true },
+  // { header:'Contact Name', accessor:'contact_name', type:'text', form: true, required: true, url: true },
+  // { header:'Country Id', accessor:'country_id', type:'number', form: true, required: true, url: true },
+  // { header:'Service Type Id', accessor:'service_type_id', type:'number', form: true, required: true, url: true },
 ]
 
 /**SERVICE-TYPE FOREIGN KEY */

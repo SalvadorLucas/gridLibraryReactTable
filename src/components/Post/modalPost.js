@@ -1,7 +1,7 @@
 import React from 'react';
 //IMPORTS MATERIAL UI
 import AddIcon from '@material-ui/icons/Add';
-import Button from "./components/CustomButtons/Button.js";
+import Button from "../CustomButtons/Button.js";
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -9,8 +9,8 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 //IMPORTS COMPONENTS DATE & SELECT
-import DateComponent from './dateComponent'
-import SelectComponent from './selectComponent'
+import DateComponent from '../Date/dateComponent'
+import SelectComponent from '../Select/selectComponent'
 //NOTIFICATIONS
 // import AddAlert from "@material-ui/icons/AddAlert";
 // import Snackbar from "./Snackbar.js";
@@ -21,7 +21,7 @@ const useStylesTexfield = makeStyles(theme => ({
     marginRight: theme.spacing(0),
   },
 }))
-import styles from "./assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
+import styles from "../../assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
 const useStyles = makeStyles(styles);
 
 export default function FormDialog(props) {

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import CustomDropdown from './components/CustomDropdown/CustomDropdown.jsx';
+import CustomDropdown from '../CustomDropdown/CustomDropdown.js';
 
 export default function Dropdup(){
   return (

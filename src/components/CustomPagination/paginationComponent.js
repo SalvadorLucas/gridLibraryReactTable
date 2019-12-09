@@ -1,7 +1,5 @@
 import React from 'react';
-
-import Paginations from "./components/Pagination/Pagination.js";
-
+import Paginations from "../Pagination/Pagination.js";
 
 export default function Example(props){
     let startPage = 0
@@ -11,23 +9,6 @@ export default function Example(props){
         if(page>=0 && page<props.pages){
             props.onClick(page)
         }
-    }
-
-    function changePageDynamic(){
-        let pages = []
-        console.log('entra')
-        pages.push({text:'PREV', onClick:()=>{actionButton(props.currentPage-1)}})        
-        if(startPage.start>=0 || endPage.end<=props.pages){
-            for(let i=startPage.start; i<endPage.end; i++){
-                if(i===props.currentPage){
-                    pages.push({active:true, text:i+1, onClick:()=>{actionButton(i)}})
-                }else{
-                    pages.push({text:i+1, onClick:()=>{actionButton(i)}}) 
-                }
-            }
-        }
-        pages.push({text:'NEXT', onClick:()=>{actionButton(props.currentPage+1)}})
-        return pages
     }
 
     function buildNumbers(){

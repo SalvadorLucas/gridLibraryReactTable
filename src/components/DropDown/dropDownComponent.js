@@ -1,5 +1,5 @@
 import React from 'react';
-import CustomDropdown from './components/CustomDropdown/CustomDropdown.js';
+import CustomDropdown from '../CustomDropdown/CustomDropdown.js';
 
 export default function DropDown(props){
 const [buttonText, setButtonText] = React.useState({text: '5'})

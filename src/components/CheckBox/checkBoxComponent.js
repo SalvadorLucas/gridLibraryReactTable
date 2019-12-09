@@ -5,7 +5,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 // @material-ui/icons
 import Check from "@material-ui/icons/Check";
 // core components
-import styles from "./assets/jss/material-dashboard-pro-react/customCheckboxRadioSwitch.js";
+import styles from "../../assets/jss/material-dashboard-pro-react/customCheckboxRadioSwitch.js";
 
 const useStyles = makeStyles(styles);
 

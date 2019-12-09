@@ -1,7 +1,7 @@
 import React from 'react';
 //IMPORTS MATERIAL UI
 import DeleteIcon from '@material-ui/icons/Delete'
-import Button from "./components/CustomButtons/Button.js";
+import Button from "../CustomButtons/Button.js";
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -9,7 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import { makeStyles } from '@material-ui/core/styles';
 
-import styles from "./assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
+import styles from "../../assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
 const useStyles = makeStyles(styles);
 
 export default function FormDialog(props) {

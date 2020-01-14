@@ -2,7 +2,7 @@ import React from 'react';
 import CustomDropdown from '../CustomDropdown/CustomDropdown.js';
 
 export default function DropDown(props){
-const [buttonText, setButtonText] = React.useState({text: '5'})
+const [buttonText, setButtonText] = React.useState({text: '10'})
 
 const onClick = key =>{
     props.onChange(key)
@@ -22,7 +22,6 @@ const onClick = key =>{
             }}
             dropdownHeader="Select Rows to Show"
             dropdownList={[
-                "5",
                 "10",
                 "20",
                 { divider: true },

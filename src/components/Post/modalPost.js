@@ -1,28 +1,34 @@
 import React from 'react';
-//IMPORTS MATERIAL UI
-import AddIcon from '@material-ui/icons/Add';
+// material-ui components
+import { makeStyles } from "@material-ui/core/styles";
+import Slide from "@material-ui/core/Slide";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogActions from "@material-ui/core/DialogActions";
+import Close from "@material-ui/icons/Close";
+import AddIcon from '@material-ui/icons/Add'
+// core components
 import Button from "../CustomButtons/Button.js";
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
-import { makeStyles } from '@material-ui/core/styles';
-//IMPORTS COMPONENTS DATE & SELECT
-import DateComponent from '../Date/dateComponent'
-import SelectComponent from '../Select/selectComponent'
+import styles from "../../assets/jss/material-dashboard-pro-react/views/notificationsStyle.js";
+//FUNCTIONS
+import CreateForm from '../../functions/createForm'
+import BuildBody from '../../functions/buildBody'
 //NOTIFICATIONS
-// import AddAlert from "@material-ui/icons/AddAlert";
-// import Snackbar from "./Snackbar.js";
+import SweetAlert from '../SweetAlert/SweetAlert'
+
+
+const useStyles = makeStyles(styles);
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="down" ref={ref} {...props} />;
+});
 //CREATE STYLES
 const useStylesTexfield = makeStyles(theme => ({
   textField: {
-    marginLeft: theme.spacing(0),
-    marginRight: theme.spacing(0),
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
   },
 }))
-import styles from "../../assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
-const useStyles = makeStyles(styles);
 
 export default function FormDialog(props) {
 
@@ -34,63 +40,6 @@ export default function FormDialog(props) {
 
   function handleClickOpen() {//OPEN MODAL
     setOpen(true);
-  }
-
-  function createInsertForm(item){//CREATE FORM
-    if (item.form==true){
-      if(item.foreignKeyEntity){
-        const combo = createComboBox(
-          item.accessor, 
-          item.foreignKeyEntity, 
-          settingForeignKeys[item.foreignKeyEntity], 
-          props.host, props.token
-          )
-        return combo
-      }else{
-        switch(item.type){
-          case 'date':
-            return(
-              <DateComponent //CREATE DATE COMPONENT 
-              key={item.accessor} //KEY FOR NEW COMPONENT
-              id={item.accessor} //ID FOR GET VALUE
-              label={item.header.toUpperCase()} //LABEL FOR COMPONENT
-              name={item.accessor}/> //NAME FOR COMPONENT
-            )
-          case 'number':
-            return (
-              <TextField //CREATE NUMBER COMPONENT IN FORM
-                key={item.accessor} //KEY FOR NEW COMPONENT
-                className={classesTextfield.textField} //THEME FOR COMPONENT
-                autoFocus //ANIMATION FOR COMPONENT
-                margin={'normal'} //MARGIN TYPE
-                InputLabelProps={{shrink: true,}} //PROPS FOR LABEL 
-                variant={'outlined'} //VARIANT TO USE
-                id={item.accessor} //ID FOR GET VALUE
-                type={item.type} //TEXTFIELD TYPE
-                name={item.accessor} //TEXTFIELD NAME
-                required={item.required} //TEXTFIELD REQUIRED
-                label={item.header.toUpperCase()} //LABEL FOR COMPONENT
-                fullWidth/>
-                )
-          case 'text':
-            return (
-              <TextField //CREATE TEXT COMPONENT IN FORM
-                key={item.accessor} //KEY FOR NEW COMPONENT
-                className={classesTextfield.textField} //THEME
-                autoFocus //ANIMATION
-                margin={'normal'} //MARGIN TYPE
-                InputLabelProps={{shrink: true,}} //PROPS FOR LABEL
-                variant={'outlined'} //VARIAN TO USE
-                id={item.accessor} //ID FOR GET VALUE
-                type={item.type} //TEXTFIELS TYPE
-                name={item.accessor} //TEXTFIELD NAME
-                required={item.required} //TEXTFIELD REQUIRED
-                label={item.header.toUpperCase()} //LABEL FOR COMPONENT
-                fullWidth/>
-                )
-            }
-      }
-    }
   }
 
   function handleClose() {//CLOSE MODAL
@@ -109,37 +58,8 @@ export default function FormDialog(props) {
     return date
   }
 
-  function buildBody(){//BUIL BODY REQUEST
-    var data = new Object() //OBJECT TO SAVE ALL DATA
-    var keyData = new Object() //OBJECT TO SAVE KEY DATA & VALUE
-    props.columns.map((element)=>{ //CHECK LABELS OBJECT //PARCHE (PROPS.DATA => LABELS)
-      if(element.form == true){
-      var type = element.type //GET TYPE FOR EVERY COMPONENT
-      switch(type){
-        case 'number': //GET COMPONENT VALUE IN EVERY ID AND TRANSFORM DATATYPE
-          keyData[element.accessor] = Number(document.getElementById(element.accessor).value)
-          break
-        case 'text': //GET COMPONENT VALUE IN EVERY ID AND TRANSFORM DATATYPE
-          keyData[element.accessor] = String(document.getElementById(element.accessor).value)
-          break
-        case 'date'://GET COMPONENT VALUE IN EVERY ID AND BUILD FORMAT DATE
-          let value = document.getElementById(element.accessor).value
-          const [anio, mes, dia] = value.split('/')
-          const date  = [anio, '-', mes, '-', dia].join('');
-          //BUILD ALL DATA FOR REQUEST
-          keyData[element.accessor] = String(date)
-          break
-      }
-      }
-    })
-    //BUILD FINAL BODY
-    data['post_'+props.entity.replace('-','_')]=keyData
-    //RETURN BODY
-    return data
-  }
-
   function post(e){//SEND POST REQUEST
-    var body = buildBody()//GET BODY REQUEST
+    var body = BuildBody(props.columns, props.entity, 'post_')//GET BODY REQUEST
     e.preventDefault()
     var xhr = new XMLHttpRequest();
     xhr.open('POST', props.host+props.entity, true);
@@ -149,24 +69,10 @@ export default function FormDialog(props) {
     xhr.send(JSON.stringify(body));
     xhr.onreadystatechange = function() { // Call a function when the state changes.
       if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-        alert('A new element has been added')
+        handleClose()
+        return(<SweetAlert message={'A new element has been added'}/>)
       }
     }
-    handleClose()
-  }
-
-  function createComboBox(name, entity, columns, host, token){//CREATE COMBO BOX COMPONENT WITH FOREIGN KEYS
-    return(
-      <SelectComponent 
-      key={React.createRef()} //KEY FOR NEW COMPONENT
-      name={name} //NAME
-      label={name} //LABEL FOR COMPONENT
-      columns={columns}//SETTING FOREIGN KEY
-      entity={entity}
-      host={host}
-      token={token}/>
-      
-    )
   }
 
   return (
@@ -179,24 +85,55 @@ export default function FormDialog(props) {
         >
         <AddIcon />
       </Button>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle >NEW {props.entity.replace('-',' ').toUpperCase()}</DialogTitle>        
+      <Dialog
+        classes={{
+          root: classes.center,
+          paper: classes.modal
+        }}
+        open={open}
+        transition={Transition}
+        keepMounted
+        onClose={handleClose}
+        aria-labelledby="modal-slide-title"
+        aria-describedby="modal-slide-description"
+      >
+        <DialogTitle
+          id="classic-modal-slide-title"
+          disableTypography
+          className={classes.modalHeader}
+        >
+          <Button
+              justIcon
+              className={classes.modalCloseButton}
+              key="close"
+              aria-label="Close"
+              color="transparent"
+              onClick={() => setOpen(false)}
+            >
+              <Close className={classes.modalClose} />
+            </Button>
+          <h4 className={classes.modalTitle}>NEW {props.entity.replace('-',' ').toUpperCase()}</h4>
+        </DialogTitle>
         <form className={'commentForm'} onSubmit={post} method={'POST'}>
-        <DialogContent align={'left'}>
+        <DialogContent
+          id="modal-slide-description"
+          className={classes.modalBody}
+        >
           {columns.map((element) =>
-            createInsertForm(element)
+            CreateForm(element, classesTextfield.textField, settingForeignKeys)
           )}
         </DialogContent>
-        <DialogActions>
-          <Button className={classes.actionButton} onClick={handleClose} color={'transparent'}>
-            Cancel
-          </Button>
-          <Button className={classes.actionButton} type={'submit'} color={'success'}>
+        <DialogActions
+          className={classes.modalFooter + " " + classes.modalFooterCenter}
+        >
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button type={'submit'} color="success">
             Done
           </Button>
-        </DialogActions>        
+        </DialogActions>
         </form>
       </Dialog>
+
     </div>
   )
 }

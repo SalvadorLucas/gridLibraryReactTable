@@ -4,6 +4,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Axios from 'axios'
+import BuildUrl from '../../functions/buildUrl'
 const useStyles = makeStyles(theme => ({
     textOption: {
         margin: theme.spacing(0),
@@ -48,31 +49,13 @@ const useStyles = makeStyles(theme => ({
       return setting
     }
 
-    function buildUrl(host, entity, columns, page, pageSize) {
-            let base = host+entity+'?'
-            columns.map((element)=>{
-              if(element.url === true){
-                switch(element.type){
-                  case 'text':
-                    base+=element.accessor+'=&'
-                    break
-                  case 'number':
-                    base+=element.accessor+'=0&'
-                    break
-                }
-              }
-            })
-            base+='page='+page+'&page_size='+pageSize
-            return base
-          }
-
   function columns(host, entity, columns, token) {
     return new Promise((resolve, reject) => {
-      Axios.get(buildUrl(host, entity, columns, 0, 100), {headers:{
+      Axios.get(BuildUrl(host, entity, columns, 0, 100), {headers:{
         'Accept': 'Application/json',
         'Authorization': `Bearer ${token}`
       }}).then((response)=>{
-          resolve(response.data['get_'+(entity.replace('-','_'))].data[0][entity.replace('-','_')]) 
+          resolve(response.data['get_'+(entity.replace('-','_'))].data[entity.replace('-','_')].data) 
       })
     })
   }  

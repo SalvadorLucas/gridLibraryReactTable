@@ -80,6 +80,7 @@ export default function FormDialog(props) {
       <Button
           justIcon
           round
+          disabled={props.owner? false : true}
           color={'success'}
           onClick={handleClickOpen}
         >

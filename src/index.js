@@ -46,6 +46,7 @@ export default class App extends React.Component {
       selectAll: false,
       page: 0,
       pageSize: 10,
+      owner: this.props.owner,
       url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 0, 10),
       filtered: [],
       sorted: [],
@@ -65,7 +66,8 @@ export default class App extends React.Component {
     this.setState({ loading: true });
     // Request the data however you want.  Here, we'll use our mocked service we created earlier
     Get(
-      this.state.pageSize,
+      // this.state.pageSize,
+      this.state.owner,
       state.sorted,
       state.filtered,
       this.state.url,
@@ -162,7 +164,8 @@ export default class App extends React.Component {
   changeSize(size) {
     this.setState({
       pageSize: Number(size),
-      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, this.state.page, Number(size))
+      page:0,
+      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 0, Number(size))
     }, () => {
       this.fetchData(this.table.current.wrappedInstance.state)
     })
@@ -186,39 +189,38 @@ export default class App extends React.Component {
         alignItems="center">
         <GridItem lg={12} md={12} sm={12} xl={12} xs={12}>
           <Card>
-            <table width='100%'>
-              <tbody>
-                <tr>
-                  <td>
-                    <CardHeader
-                      color="info" icon>
-                      <CardIcon
-                        color="success"
-                      >
-                        <Assignment />
-                      </CardIcon>
-                      <h3 style={{ color: 'black' }}>{this.props.title}</h3>
-                    </CardHeader>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <CardHeader>
-                      <MuiThemeProvider theme={theme}>
-                        <ModalPost
-                          settingForeignKeys={this.props.settingForeignKeys}//SETTING FOREIGN KEYS
-                          columns={this.props.columns}//COLUMNS
-                          host={this.props.host}//HOST
-                          entity={this.props.entity}//ENTITY
-                          token={this.state.token}//TOKEN
-                          refreshGrid={this.refreshGrid}//REFRESH GRID
-                        ></ModalPost>
-                      </MuiThemeProvider>
-                    </CardHeader>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <GridContainer
+              spacing={1}
+              direction="row"
+              justify="space-between"
+              alignItems="center">
+              <GridItem lg={11} md={10} sm={10} xl={11} xs={8}>
+                <CardHeader
+                  color="info" icon>
+                  <CardIcon
+                    color="success"
+                  >
+                    <Assignment />
+                  </CardIcon>
+                  <h3 style={{ color: 'black' }}>{this.props.title}</h3>
+                </CardHeader>
+              </GridItem>
+              <GridItem lg={1} md={2} sm={2} xl={1} xs={4}>
+                <CardHeader>
+                  <MuiThemeProvider theme={theme}>
+                    <ModalPost
+                      settingForeignKeys={this.props.settingForeignKeys}//SETTING FOREIGN KEYS
+                      columns={this.props.columns}//COLUMNS
+                      host={this.props.host}//HOST
+                      entity={this.props.entity}//ENTITY
+                      token={this.state.token}//TOKEN
+                      owner={this.state.owner}
+                      refreshGrid={this.refreshGrid}//REFRESH GRID
+                    ></ModalPost>
+                  </MuiThemeProvider>
+                </CardHeader>
+              </GridItem>
+            </GridContainer>
             <CardBody>
               <Table
                 ref={this.table}
@@ -243,7 +245,7 @@ export default class App extends React.Component {
                 filterable
                 defaultPageSize={this.state.pageSize}
                 style={{
-                  height: "400px" // This will force the table body to overflow and scroll, since there is not enough room
+                  height: "650px" // This will force the table body to overflow and scroll, since there is not enough room
                 }}
                 className="-striped -highlight"
               />
@@ -252,12 +254,12 @@ export default class App extends React.Component {
                 direction="row"
                 justify="flex-end"
                 alignItems="center">
-                <GridItem lg={1} md={1} sm={2} xl={2} xs={2}>
+                <GridItem lg={1} md={1} sm={1} xl={1} xs={1}>
                   <DorpDownComponent
                     onChange={this.changePageSize}
                   />
                 </GridItem>
-                <GridItem lg={4} md={4} sm={10} xl={10} xs={10}>
+                <GridItem lg={3} md={4} sm={6} xl={10} xs={10}>
                   <Pagination
                     pages={this.state.pages}
                     startPage={this.state.startPage}

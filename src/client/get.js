@@ -1,7 +1,7 @@
 import Axios from 'axios'
 import Actions from '../components/Actions/actions'
 
-const requestData = (owner, sorted, filtered, url, entity, datafields, id, token, onClick, checkFlag) => {
+const requestData = (owner, sorted, filtered, url, entity, columns, id, token) => {
   return new Promise((resolve, reject) => {
     
     // You can retrieve your data however you want, in this case, we will just use some local data.
@@ -13,27 +13,24 @@ const requestData = (owner, sorted, filtered, url, entity, datafields, id, token
       data: {
         query: `
         query {
-          findRequestList(filters:[
-              {col: "ownerId", val:"${owner}"}
-          ]
-          page:{number:${url.page} size: ${url.pageSize}}){
-            number
+          ${entity}(page:{number:${url.page} size: ${url.pageSize}}){
             totalPages
+            totalElements
             content {
-              ${datafields.map(element=>{
+              ${columns.map(element=>{
                 return element.accessor
               })}             
             }
           }
-        } `
+        }`
       }
     }).then((result) => {
-      filteredData = result.data.data.findRequestList.content;
+      filteredData = result.data.data[entity].content;
       /**
        * Adding actions custom buttons
        */
       filteredData.map((item) => {
-        item['actions'] = Actions(item, url, entity, datafields, id, token)
+        item['actions'] = Actions(item, url, entity, columns, id, token)
       })
       /**
        *End of adding buttons
@@ -65,7 +62,7 @@ const requestData = (owner, sorted, filtered, url, entity, datafields, id, token
       // You must return an object containing the rows of the current page, and optionally the total pages number.
       const res = {
         rows: sortedData,
-        pages: result.data.data.findRequestList.totalPages,
+        pages: result.data.data[entity].totalPages,
         // pages: Math.ceil(filteredData.length / pageSize)
       };
       resolve(res)

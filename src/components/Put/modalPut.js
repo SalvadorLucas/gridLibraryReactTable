@@ -1,4 +1,5 @@
 import React from 'react';
+import Axios from 'axios';
 //IMPORTS MATERIAL UI
 import EditIcon from '@material-ui/icons/Edit';
 // import Button from '@material-ui/core/Button';
@@ -9,16 +10,20 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
+import GridContainer from "../Grid/GridContainer.js";
+import GridItem from "../Grid/GridItem.js";
 //IMPORTS COMPONENTS DATE & SELECT
+import styles from "../../assets/jss/material-dashboard-pro-react/views/notificationsStyle.js";
 import DateComponent from '../Date/dateComponent'
+import { CreateForm, CreateComboBox } from '../../functions/createForm'
+import { BuildBody } from '../../functions/buildBody'
 //CREATE STYLES
 const useStylesTexfield = makeStyles(theme => ({
   textField: {
-    marginLeft: theme.spacing(0),
-    marginRight: theme.spacing(0),
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
   },
 }))
-import styles from "../../assets/jss/material-dashboard-pro-react/views/extendedTablesStyle.js";
 const useStyles = makeStyles(styles);
 
 export default function FormDialog(props) {
@@ -26,6 +31,7 @@ export default function FormDialog(props) {
   const columns = props.columns//COLUMNS FOR BUILD FORM
   var rowData = props.rowData//ROW DATA
   const id = props.id//ROW ID
+
   const classes = useStyles();
   const classesTextfield = useStylesTexfield();
 
@@ -33,146 +39,199 @@ export default function FormDialog(props) {
     setOpen(true);
   }
 
-  function createUpdateForm(item){
-    if (item.form==true && !item.foreignKeyEntity){
-    switch(item.type){
-      case 'date':
-        return(
-          <DateComponent 
-          key={item.accessor} 
-          defaultValue={rowData[item.accessor]}
-          id={item.accessor}
-          label={item.header.toUpperCase()} 
-          name={item.accessor}/>//CREATE DATE COMPONENT
-        )
-      case 'number':
-        return (
-          <TextField 
-            key={item.accessor} 
-            className={classesTextfield.textField} 
-            autoFocus 
-            margin={'normal'} 
-            InputLabelProps={{shrink: true,}} 
-            variant={'outlined'} 
-            id={item.accessor} 
-            type={item.type} 
-            name={item.accessor} 
-            required={item.required} 
-            defaultValue={rowData[item.accessor]}
-            label={item.header.toUpperCase()} 
-            fullWidth/>
-            )
-      case 'text':
-        return (
-          <TextField 
-            key={item.accessor} 
-            className={classesTextfield.textField} 
-            autoFocus 
-            margin={'normal'} 
-            InputLabelProps={{shrink: true,}} 
-            variant={'outlined'} 
-            id={item.accessor} 
-            type={item.type} 
-            name={item.accessor} 
-            required={item.required} 
-            defaultValue={rowData[item.accessor]}
-            label={item.header.toUpperCase()} 
-            fullWidth/>
-            )
-      }
-    }
-  }
-
   function handleClose() {
     setOpen(false);
   }
-  
-  // function getDate() {
-  //   let date =  new Date()
-  //   let anio = date.getFullYear()
-  //   let mes = date.getMonth()+1
-  //   let dia = date.getDate()
-  //   if(dia<9){
-  //     dia='0'+dia
-  //   }
-  //   date = anio + '-' + mes + '-' + dia
-  //   return date
-  // }
-  
-  function buildBody(){
-    var body = new Object() //OBJECT TO SAVE ALL columns
-    var keycolumns = new Object() //OBJECT TO SAVE KEY columns & VALUE
-    columns.map((element)=>{ //CHECK LABELS OBJECT
-      if(element.form == true){
-      var type = element.type //GET TYPE FOR EVERY COMPONENT
-      switch(type){
-        case 'number': //GET COMPONENT VALUE IN EVERY ID AND TRANSFORM columnsTYPE
-          keycolumns[element.accessor] = Number(document.getElementById(element.accessor).value)
-          break
-        case 'text': //GET COMPONENT VALUE IN EVERY ID AND TRANSFORM columnsTYPE
-          keycolumns[element.accessor] = String(document.getElementById(element.accessor).value)
-          break
-        case 'date'://GET COMPONENT VALUE IN EVERY ID AND BUILD FORMAT DATE
-          let value = document.getElementById(element.accessor).value
-          const [anio, mes, dia] = value.split('/')
-          const date  = [anio, '-', mes, '-', dia].join('');
-          //BUILD ALL columns FOR REQUEST
-          keycolumns[element.accessor] = String(date)
-          break
-      }
-      }
-    })
-    keycolumns[props.id] = rowData[id]
-    //BUILD FINAL BODY
-    body['put_'+props.entity.replace('-','_')]=keycolumns
-    //RETURN BODY
-    return body
-  }
 
-  function put(e){
-    var body = buildBody()//GET BODY REQUEST
-    e.preventDefault()
-    var xhr = new XMLHttpRequest();
-    xhr.open('PUT', props.url, true);
-    //Send the proper header information along with the request
-    xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8')
-    xhr.setRequestHeader('Authorization', `Bearer ${props.token}`)
-    xhr.send(JSON.stringify(body));
-    xhr.onreadystatechange = function() { // Call a function when the state changes.
-      if (this.readyState === XMLHttpRequest.DONE && this.status === 202) {
-        alert('A new element has been updated')
+  function createUpdateForm(item) {
+    if (item.form == true && !item.foreignKeyEntity) {
+      switch (item.type) {
+        case 'date':
+          return (
+            <GridItem
+              xs={12}
+              md={6}
+              lg={6}
+              key={item.accessor} >
+              <DateComponent
+                key={item.accessor}
+                defaultValue={rowData[item.accessor]}
+                id={item.accessor}
+                label={item.header.toUpperCase()}
+                name={item.accessor} />
+            </GridItem>//CREATE DATE COMPONENT
+          )
+        case 'number':
+          return (
+            <GridItem
+              xs={12}
+              md={6}
+              lg={6}
+              key={item.accessor}> 
+              <TextField
+                key={item.accessor}
+                className={classesTextfield.textField}
+                autoFocus
+                margin={'normal'}
+                InputLabelProps={{ shrink: true, }}
+                variant={'outlined'}
+                id={item.accessor}
+                type={item.type}
+                name={item.accessor}
+                required={item.required}
+                defaultValue={rowData[item.accessor]}
+                label={item.header.toUpperCase()}
+                fullWidth />
+            </GridItem>
+          )
+        case 'text':
+          return (
+            <GridItem
+              xs={12}
+              md={6}
+              lg={6}
+              key={item.accessor}> 
+              <TextField
+                key={item.accessor}
+                className={classesTextfield.textField}
+                autoFocus
+                margin={'normal'}
+                InputLabelProps={{ shrink: true, }}
+                variant={'outlined'}
+                id={item.accessor}
+                type={item.type}
+                name={item.accessor}
+                required={item.required}
+                defaultValue={rowData[item.accessor]}
+                label={item.header.toUpperCase()}
+                fullWidth />
+            </GridItem>
+          )
+        case 'array':
+          return (
+            <GridItem
+              xs={12}
+              md={6}
+              lg={6}
+              key={item.accessor} 
+            >
+              <TextField //CREATE NUMBER COMPONENT IN FORM
+                className={classesTextfield.textField} //THEME FOR COMPONENT
+                autoFocus //ANIMATION FOR COMPONENT
+                margin={'normal'} //MARGIN TYPE
+                InputLabelProps={{ shrink: true, }} //PROPS FOR LABEL 
+                variant={'outlined'} //VARIANT TO USE
+                id={item.accessor} //ID FOR GET VALUE
+                type={'number'} //TEXTFIELD TYPE
+                name={item.accessor} //TEXTFIELD NAME
+                defaultValue={rowData[item.accessor]}
+                required={item.required} //TEXTFIELD REQUIRED
+                label={item.header.toUpperCase()} //LABEL FOR COMPONENT
+                fullWidth />
+            </GridItem>
+          )
       }
     }
-    handleClose()
   }
-    return (
-      <div>
-        <Button
-          color={'success'}
-          simple
-          className={classes.actionButton}
-          onClick={handleClickOpen}
+
+  function buildBody(id, type) {
+          switch(type){
+            case 'text':
+              return document.getElementById(id).value;
+            case 'number':
+              return Number(document.getElementById(id).value);
+            case 'array':
+              return document.getElementById(id).value;
+            default:
+              break;
+          }
+        }
+
+  function put() {
+
+    let query = `query {
+      modify${props.entity} (
+          request:{
+            id:${props.rowData[props.id]}
+              ${props.columns.map(item => {
+      if (item.form == true) {
+        switch (item.type) {
+          case "text":
+            return item.accessor + ':"' + buildBody(item.accessor, item.type) + '"';
+          case "number":
+            return item.accessor + ':' + buildBody(item.accessor, item.type);
+          case "array":
+            return item.accessor + ':[' + rowData[item.accessor] + buildBody(item.accessor, item.type) + ']'
+        }
+      }
+    })}
+              ${props.foreignKeys ?
+        props.foreignKeys.map(item => {
+          switch (item.options.type) {
+            case "text":
+              return item.fk + ':"' + BuildBody(item.query, item.options.type) + '"'
+            case "number":
+              return item.fk + ':' + BuildBody(item.query, item.options.type)
+            case "array":
+              return item.fk + ':[' + rowData[item.query] + BuildBody(item.query, item.options.type)+']'
+          }
+        }) : ''}
+              }){
+          id
+          uuid
+      }
+  }`
+
+    Axios({
+      url: props.host,
+      method: 'POST',
+      data: {
+        query: query
+      }
+    }).then(res=>{
+      alert("Updated: "+JSON.stringify(res.data.data.createRequest));
+      handleClose();
+    }).catch(err=>{
+      console.log(err.message);
+    })
+  }
+  return (
+    <div>
+      <Button
+        color={'success'}
+        simple
+        className={classes.actionButton}
+        onClick={handleClickOpen}
+      >
+        <EditIcon />
+      </Button>
+      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <DialogTitle >MODIFY {props.entity.replace('-', '_').toUpperCase()}?</DialogTitle>
+        <form className={'commentForm'} onSubmit={put}>
+        <DialogContent
+          id="modal-slide-description"
+          className={classes.modalBody}
         >
-          <EditIcon />
-        </Button>
-        <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-          <DialogTitle >MODIFY {props.entity.replace('-','_').toUpperCase()}?</DialogTitle>   
-          <form className={'commentForm'} onSubmit={put} method={'PUT'}>
-          <DialogContent align={'left'}>
-            {columns.map((element)=>
-              createUpdateForm(element)           
+          <GridContainer
+            direction="row"
+            justify="flex-start"
+            alignItems="center"
+          >
+            {columns.map((element) =>
+              createUpdateForm(element)
             )}
-          </DialogContent>
-          <DialogActions>
-            <Button className={classes.actionButton} onClick={handleClose} color={'transparent'}>
-              CANCEL
-            </Button>
-            <Button className={classes.actionButton} type={'submit'} color={'success'}>
-              SAVE
-            </Button>
-          </DialogActions>        
-          </form>
-        </Dialog>
-      </div>
-    );
+          </GridContainer>
+        </DialogContent>
+        <DialogActions
+          className={classes.modalFooter + " " + classes.modalFooterCenter}
+        >
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button type={'submit'} color="success">
+          Done
+          </Button>
+        </DialogActions>
+        </form>
+      </Dialog>
+    </div >
+  );
 }

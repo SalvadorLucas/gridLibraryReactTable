@@ -57,6 +57,7 @@ export default class App extends React.Component {
     this.fetchData = this.fetchData.bind(this);
     this.flag = this.changePage.bind(this)//FLAG TO REFRESH GRID
     this.changePageSize = this.changeSize.bind(this)//FLAG TO CHANGE GRID SIZE
+    this.refresh = this.refreshGrid.bind(this)
     this.table = React.createRef()
   }
 
@@ -75,7 +76,6 @@ export default class App extends React.Component {
       this.state.columns,
       this.state.id,
       this.state.token,
-      this.onClick
     )
       .then(res => {
         // Now just get the rows of data to your React Table (and update anything else like total pages or loading)
@@ -167,10 +167,17 @@ export default class App extends React.Component {
       page:0,
       url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 0, Number(size))
     }, () => {
+      console.log(this.table);
+      
       this.fetchData(this.table.current.wrappedInstance.state)
     })
   }
-
+  
+  refreshGrid() {
+    // this.fetchData(this.table.current.wrappedInstance.state)
+    console.log(this.table);
+    
+  }
   isSelected(key) {
     /*
       Instead of passing our external selection state we provide an 'isSelected'
@@ -209,13 +216,12 @@ export default class App extends React.Component {
                 <CardHeader>
                   <MuiThemeProvider theme={theme}>
                     <ModalPost
-                      settingForeignKeys={this.props.settingForeignKeys}//SETTING FOREIGN KEYS
+                      foreignKeys={this.props.foreignKeys}//SETTING FOREIGN KEYS
                       columns={this.props.columns}//COLUMNS
                       host={this.props.host}//HOST
                       entity={this.props.entity}//ENTITY
                       token={this.state.token}//TOKEN
                       owner={this.state.owner}
-                      refreshGrid={this.refreshGrid}//REFRESH GRID
                     ></ModalPost>
                   </MuiThemeProvider>
                 </CardHeader>

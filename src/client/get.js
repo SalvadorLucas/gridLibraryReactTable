@@ -1,7 +1,7 @@
 import Axios from 'axios'
 import Actions from '../components/Actions/actions'
 
-const requestData = (owner, sorted, filtered, url, entity, columns, id, token) => {
+const requestData = (title, sorted, filtered, url, entity, columns, id, token) => {
   return new Promise((resolve, reject) => {
     
     // You can retrieve your data however you want, in this case, we will just use some local data.
@@ -30,7 +30,7 @@ const requestData = (owner, sorted, filtered, url, entity, columns, id, token) =
        * Adding actions custom buttons
        */
       filteredData.map((item) => {
-        item['actions'] = Actions(item, url, entity, columns, id, token)
+        item['actions'] = Actions(item, url, title, columns, id, token)
       })
       /**
        *End of adding buttons

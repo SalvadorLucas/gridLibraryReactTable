@@ -17,7 +17,7 @@ class Demo extends Component {
         host={'http://localhost:18080/graphql'}
         entity={'findWorkflowNodeList'}
         id={'id'}
-        title={'Service Catalog'}
+        title={'Work Flow List'}
       />
     </div>
   }

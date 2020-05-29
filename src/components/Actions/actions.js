@@ -7,7 +7,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
 import muiTheme from '../../assets/json/cimmyt-default-theme.json'
 const theme = createMuiTheme(muiTheme);
 
-export default function actions(props, url, entity, columns, id, token, refreshGrid) {
+export default function actions(props, url, title, columns, id, token, refreshGrid) {
   return (
     <MuiThemeProvider theme={theme}>
       <GridContainer
@@ -18,7 +18,7 @@ export default function actions(props, url, entity, columns, id, token, refreshG
         <GridItem xs={6} md={6} lg={6}>
           <ModalPut
             id={id}//ID ROW
-            entity={entity}//ENTITY
+            entity={title}//ENTITY
             rowData={props}//ROW DATA
             columns={columns}//COLUMNS
             host={url}//HOST
@@ -29,7 +29,7 @@ export default function actions(props, url, entity, columns, id, token, refreshG
         <GridItem xs={6} md={6} lg={6}>
           <ModalDelete
             id={id}//ID ROW
-            entity={entity}//ENTITY
+            entity={title}//ENTITY
             rowData={props}//ROW DATA
             url={url}//HOST
             token={token}//TOKEN FOR API

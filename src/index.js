@@ -39,6 +39,7 @@ export default class App extends React.Component {
       pages: null,
       loading: true,
       entity: this.props.entity,
+      title: this.props.title.slice(0,-5),
       columns: this.props.columns,
       id: this.props.id,
       token: this.props.token,
@@ -68,7 +69,7 @@ export default class App extends React.Component {
     // Request the data however you want.  Here, we'll use our mocked service we created earlier
     Get(
       // this.state.pageSize,
-      this.state.owner,
+      this.state.title,
       state.sorted,
       state.filtered,
       this.state.url,
@@ -164,19 +165,19 @@ export default class App extends React.Component {
   changeSize(size) {
     this.setState({
       pageSize: Number(size),
-      page:0,
+      page: 0,
       url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 0, Number(size))
     }, () => {
       console.log(this.table);
-      
+
       this.fetchData(this.table.current.wrappedInstance.state)
     })
   }
-  
+
   refreshGrid() {
     // this.fetchData(this.table.current.wrappedInstance.state)
     console.log(this.table);
-    
+
   }
   isSelected(key) {
     /*
@@ -219,7 +220,7 @@ export default class App extends React.Component {
                       foreignKeys={this.props.foreignKeys}//SETTING FOREIGN KEYS
                       columns={this.props.columns}//COLUMNS
                       host={this.props.host}//HOST
-                      entity={this.props.entity}//ENTITY
+                      entity={this.state.title}//ENTITY
                       token={this.state.token}//TOKEN
                       owner={this.state.owner}
                     ></ModalPost>

@@ -24,8 +24,9 @@ import Pagination from './components/CustomPagination/paginationComponent'
 import DorpDownComponent from './components/DropDown/dropDownComponent'
 // Functions
 import BuildUrl from './functions/buildUrl'
-import GenerateHeader from './functions/generateHeager'
-import Get from './client/get'
+import GenerateHeader from './functions/generateHeader'
+import queryData from './client/queryGraph'
+import getForeign from './client/queryGraphForeignKey'
 
 const Table = SelectTableHOC(ReactTable);
 
@@ -45,14 +46,15 @@ export default class App extends React.Component {
       token: this.props.token,
       rowsSelected: [0],
       selectAll: false,
-      page: 0,
+      page: 1,
       pageSize: 10,
       owner: this.props.owner,
-      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 0, 10),
+      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 1, 10),
       filtered: [],
       sorted: [],
-      startPage: 0,
+      startPage: 1,
       endPage: 5,
+      foreignKeysData: []
     };
     this.toggleSelection = this.toggleSelection.bind(this)
     this.fetchData = this.fetchData.bind(this);
@@ -67,8 +69,7 @@ export default class App extends React.Component {
     // You can set the `loading` prop of the table to true to use the built-in one or show you're own loading bar if you want.
     this.setState({ loading: true });
     // Request the data however you want.  Here, we'll use our mocked service we created earlier
-    Get(
-      // this.state.pageSize,
+    queryData(
       this.state.title,
       state.sorted,
       state.filtered,
@@ -77,6 +78,9 @@ export default class App extends React.Component {
       this.state.columns,
       this.state.id,
       this.state.token,
+      this.refresh,
+      this.props.foreignKeys,
+      this.state.foreignKeysData
     )
       .then(res => {
         // Now just get the rows of data to your React Table (and update anything else like total pages or loading)
@@ -141,10 +145,10 @@ export default class App extends React.Component {
           startPage: this.state.pages - 5
         })
         break;
-      case 0:
+      case 1:
         this.setState({
           endPage: 5,
-          startPage: 0
+          startPage: 1
         })
         break;
       case this.state.endPage:
@@ -165,19 +169,15 @@ export default class App extends React.Component {
   changeSize(size) {
     this.setState({
       pageSize: Number(size),
-      page: 0,
-      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 0, Number(size))
+      page: 1,
+      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 1, Number(size))
     }, () => {
-      console.log(this.table);
-
       this.fetchData(this.table.current.wrappedInstance.state)
     })
   }
 
   refreshGrid() {
-    // this.fetchData(this.table.current.wrappedInstance.state)
-    console.log(this.table);
-
+    this.fetchData(this.table.current.wrappedInstance.state)
   }
   isSelected(key) {
     /*
@@ -187,6 +187,22 @@ export default class App extends React.Component {
     */
     return this.state.rowsSelected.includes(key);
   };
+
+  componentDidMount(){
+    if(this.props.foreignKeys){
+      let foreignKeysData = []
+      this.props.foreignKeys.map(element=>{
+        getForeign(element,this.props.host).then(response=>{
+          foreignKeysData.push(response)
+        })
+      })
+      this.setState({
+        foreignKeysData:foreignKeysData
+      },()=>{
+        this.fetchData(this.table.current.wrappedInstance.state)
+      })
+    }
+  }
 
   render() {
     return (
@@ -223,6 +239,8 @@ export default class App extends React.Component {
                       entity={this.state.title}//ENTITY
                       token={this.state.token}//TOKEN
                       owner={this.state.owner}
+                      refresh={this.refresh}
+                      foreignKeysData={this.state.foreignKeysData}
                     ></ModalPost>
                   </MuiThemeProvider>
                 </CardHeader>

@@ -9,16 +9,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Close from "@material-ui/icons/Close";
 import AddIcon from '@material-ui/icons/Add';
 import GridContainer from "../Grid/GridContainer.js";
-import Axios from "axios";
 // core components
 import Button from "../CustomButtons/Button.js";
 import styles from "../../assets/jss/material-dashboard-pro-react/views/notificationsStyle.js";
 //FUNCTIONS
 import { CreateForm, CreateComboBox } from '../../functions/createForm'
-import { BuildBody } from '../../functions/buildBody'
+import mutationData from '../../client/mutationGraph'
 //NOTIFICATIONS
-import SweetAlert from '../SweetAlert/SweetAlert'
-
 
 const useStyles = makeStyles(styles);
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -36,7 +33,8 @@ export default function FormDialog(props) {
 
   const [open, setOpen] = React.useState(false)//MODAL STATE
   const columns = props.columns//COLUMNS
-  const foreignKeys = props.foreignKeys//ARRAY FOREIGN KEYS
+  const foreignKeys = props.foreignKeys//settings FOREIGN KEYS
+  const foreignKeysData = props.foreignKeysData //foreigng keys data
   const classes = useStyles();
   const classesTextfield = useStylesTexfield();
 
@@ -61,62 +59,45 @@ export default function FormDialog(props) {
   }
 
   function post() {//SEND POST REQUEST 
-    
-    let query = `query {
-      create${props.entity} (
-          request:{
-            id:0
-              ${props.columns.map(item => {
-                if (item.form == true) {
-                  switch(item.type){
-                    case "text":
-                      return item.accessor+':"'+BuildBody(item.accessor, item.type, 'add')+'"';
-                    case "number":
-                      return item.accessor+':'+BuildBody(item.accessor, item.type, 'add');
-                    case "array":
-                      return item.accessor+':['+BuildBody(item.accessor, item.type, 'add')+']'
-                  }
-                }
-              })}
-              ${props.foreignKeys ?
-                props.foreignKeys.map(item => {
-                  switch(item.options.type){
-                    case "text":
-                      return item.fk+':"'+BuildBody(item.query, item.options.type, 'add')+'"'
-                    case "number":
-                      return item.fk+':'+BuildBody(item.query, item.options.type, 'add')
-                    case "array":
-                      return item.fk+':['+BuildBody(item.query, item.options.type, 'add')+']'
-                  }
-                }) : null}
-              }){
-          id
-          uuid
+    // columns entity host
+    let mutation = `mutation {
+      create${props.entity}(${props.entity}To:{
+        id:0
+        ${props.columns.map(element => {
+      if (element.form === true) {
+        switch (element.type) {
+          case 'text':
+            return `${element.accessor}:"${document.getElementById(element.accessor+'Post').value}"`
+          case 'number':
+            return `${element.accessor}:${document.getElementById(element.accessor+'Post').value}`
+        }
+      }
+    })}
+        ${props.foreignKeys ?
+        props.foreignKeys.map(element => {
+          return `${element.entity.toLowerCase()}:{
+              ${element.value}:${document.getElementById(element.entity+'Post').value}
+            }`
+        })
+        : null}
+      }){
+        id
       }
   }`
-
-
-    Axios({
-      url: props.host,
-      method: 'POST',
-      data: {
-        query: query
-      }
-    }).then(res=>{
-      alert("Added: "+JSON.stringify(res.data.data.createRequest));
-      handleClose();
-    }).catch(err=>{
-      handleClose();
-      alert(err.message);
-    })
+  mutationData(props.host, mutation).then(response=>{
+    alert(`New ${props.entity} with id: ${response.data[`create${props.entity}`].id} added`);
+    document.getElementById('postForm').reset()
+    handleClose();
+    props.refresh();
+  }).catch(error=>{
+    console.log(error);
+  })
   }
-
   return (
     <div>
       <Button
         justIcon
         round
-        // disabled={props.owner ? false : true}
         color={'success'}
         onClick={handleClickOpen}
       >
@@ -151,34 +132,34 @@ export default function FormDialog(props) {
           >
             <Close className={classes.modalClose} />
           </Button>
-          <h4 className={classes.modalTitle}>NEW {props.entity.replace('-', ' ').toUpperCase()}</h4>
+          NEW {props.entity.replace('-', ' ').toUpperCase()}
         </DialogTitle>
-        <form className={'commentForm'} onSubmit={post}>
-        <DialogContent
-          id="modal-slide-description"
-          className={classes.modalBody}
-        >
-          <GridContainer
-            direction="row"
-            justify="flex-start"
-            alignItems="center"
+        <form className={'commentForm'} id='postForm'>
+          <DialogContent
+            id="modal-slide-description"
+            className={classes.modalBody}
           >
-            {columns.map((element) =>
-              CreateForm(element, classesTextfield.textField, null)
-            )}
-            {foreignKeys ? foreignKeys.map(element =>
-              CreateComboBox(element.class, element.query, props.host, element.options)
-            ) : null}
-          </GridContainer>
-        </DialogContent>
-        <DialogActions
-          className={classes.modalFooter + " " + classes.modalFooterCenter}
-        >
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button type={'submit'} color="success">
-            Done
+            <GridContainer
+              direction="row"
+              justify="flex-start"
+              alignItems="center"
+            >
+              {columns.map((element) =>
+                CreateForm(element, classesTextfield.textField, null, 'Post')
+              )}
+              {foreignKeys ? foreignKeys.map((element, key) =>
+                CreateComboBox(element, props.host, key, foreignKeysData?foreignKeysData[key]:null,'Post')
+              ) : null}
+            </GridContainer>
+          </DialogContent>
+          <DialogActions
+            className={classes.modalFooter + " " + classes.modalFooterCenter}
+          >
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type={'button'} color="success" onClick={post}>
+              Done
           </Button>
-        </DialogActions>
+          </DialogActions>
         </form>
       </Dialog>
 

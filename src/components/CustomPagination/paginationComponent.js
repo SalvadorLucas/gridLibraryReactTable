@@ -4,7 +4,7 @@ import Paginations from "../Pagination/Pagination.js";
 export default function Example(props){
 
     function actionButton(page){
-        if(page>=0 && page<props.pages){
+        if(page>=1 && page<props.pages+1){
             props.onClick(page)
         }
     }
@@ -16,11 +16,11 @@ export default function Example(props){
         }
         pages.push({text:'PREV', onClick:()=>{actionButton(props.currentPage-1)}})
         if(props.pages <= 5){
-            for(let i=0; i<props.pages; i++){
+            for(let i=1; i<props.pages+1; i++){
                 if(i===props.currentPage){
-                    pages.push({active:true, text:i+1, onClick:()=>{actionButton(i)}})
+                    pages.push({active:true, text:i, onClick:()=>{actionButton(i)}})
                 }else{
-                    pages.push({text:i+1, onClick:()=>{actionButton(i)}}) 
+                    pages.push({text:i, onClick:()=>{actionButton(i)}}) 
                 }
             }
         }        
@@ -29,9 +29,9 @@ export default function Example(props){
         }else{
             for(let i=props.startPage; i<props.endPage; i++){
                 if(i===props.currentPage){
-                    pages.push({active:true, text:i+1, onClick:()=>{actionButton(i)}})
+                    pages.push({active:true, text:i, onClick:()=>{actionButton(i)}})
                 }else{
-                    pages.push({text:i+1, onClick:()=>{actionButton(i)}}) 
+                    pages.push({text:i, onClick:()=>{actionButton(i)}}) 
                 }
             }
         }

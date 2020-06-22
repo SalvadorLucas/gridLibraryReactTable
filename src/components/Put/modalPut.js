@@ -1,5 +1,4 @@
 import React from 'react';
-import Axios from 'axios';
 //IMPORTS MATERIAL UI
 import EditIcon from '@material-ui/icons/Edit';
 // import Button from '@material-ui/core/Button';
@@ -7,16 +6,15 @@ import Button from "../CustomButtons/Button.js";
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
+import Close from "@material-ui/icons/Close";
 import DialogTitle from '@material-ui/core/DialogTitle';
-import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
 import GridContainer from "../Grid/GridContainer.js";
-import GridItem from "../Grid/GridItem.js";
 //IMPORTS COMPONENTS DATE & SELECT
 import styles from "../../assets/jss/material-dashboard-pro-react/views/notificationsStyle.js";
-import DateComponent from '../Date/dateComponent'
 import { CreateForm, CreateComboBox } from '../../functions/createForm'
-import { BuildBody } from '../../functions/buildBody'
+import mutationData from '../../client/mutationGraph'
+
 //CREATE STYLES
 const useStylesTexfield = makeStyles(theme => ({
   textField: {
@@ -26,12 +24,16 @@ const useStylesTexfield = makeStyles(theme => ({
 }))
 const useStyles = makeStyles(styles);
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="down" ref={ref} {...props} />;
+});
+
 export default function FormDialog(props) {
   const [open, setOpen] = React.useState(false)//STATE FOR OPEN OR CLOSE MODAL
   const columns = props.columns//COLUMNS FOR BUILD FORM
+  const foreignKeys = props.foreignKeys//ARRAY FOREIGN KEYS
+  const foreignKeysData = props.foreignKeysData
   var rowData = props.rowData//ROW DATA
-  const id = props.id//ROW ID
-
   const classes = useStyles();
   const classesTextfield = useStylesTexfield();
 
@@ -43,193 +45,108 @@ export default function FormDialog(props) {
     setOpen(false);
   }
 
-  function createUpdateForm(item) {
-    if (item.form == true && !item.foreignKeyEntity) {
-      switch (item.type) {
-        case 'date':
-          return (
-            <GridItem
-              xs={12}
-              md={6}
-              lg={6}
-              key={item.accessor} >
-              <DateComponent
-                key={item.accessor}
-                defaultValue={rowData[item.accessor]}
-                id={item.accessor}
-                label={item.header.toUpperCase()}
-                name={item.accessor} />
-            </GridItem>//CREATE DATE COMPONENT
-          )
-        case 'number':
-          return (
-            <GridItem
-              xs={12}
-              md={6}
-              lg={6}
-              key={item.accessor}> 
-              <TextField
-                key={item.accessor}
-                className={classesTextfield.textField}
-                autoFocus
-                margin={'normal'}
-                InputLabelProps={{ shrink: true, }}
-                variant={'outlined'}
-                id={item.accessor}
-                type={item.type}
-                name={item.accessor}
-                required={item.required}
-                defaultValue={rowData[item.accessor]}
-                label={item.header.toUpperCase()}
-                fullWidth />
-            </GridItem>
-          )
-        case 'text':
-          return (
-            <GridItem
-              xs={12}
-              md={6}
-              lg={6}
-              key={item.accessor}> 
-              <TextField
-                key={item.accessor}
-                className={classesTextfield.textField}
-                autoFocus
-                margin={'normal'}
-                InputLabelProps={{ shrink: true, }}
-                variant={'outlined'}
-                id={item.accessor}
-                type={item.type}
-                name={item.accessor}
-                required={item.required}
-                defaultValue={rowData[item.accessor]}
-                label={item.header.toUpperCase()}
-                fullWidth />
-            </GridItem>
-          )
-        case 'array':
-          return (
-            <GridItem
-              xs={12}
-              md={6}
-              lg={6}
-              key={item.accessor} 
-            >
-              <TextField //CREATE NUMBER COMPONENT IN FORM
-                className={classesTextfield.textField} //THEME FOR COMPONENT
-                autoFocus //ANIMATION FOR COMPONENT
-                margin={'normal'} //MARGIN TYPE
-                InputLabelProps={{ shrink: true, }} //PROPS FOR LABEL 
-                variant={'outlined'} //VARIANT TO USE
-                id={item.accessor} //ID FOR GET VALUE
-                type={'number'} //TEXTFIELD TYPE
-                name={item.accessor} //TEXTFIELD NAME
-                defaultValue={rowData[item.accessor]}
-                required={item.required} //TEXTFIELD REQUIRED
-                label={item.header.toUpperCase()} //LABEL FOR COMPONENT
-                fullWidth />
-            </GridItem>
-          )
-      }
-    }
-  }
-
-  function buildBody(id, type) {
-          switch(type){
-            case 'text':
-              return document.getElementById(id).value;
-            case 'number':
-              return Number(document.getElementById(id).value);
-            case 'array':
-              return document.getElementById(id).value;
-            default:
-              break;
-          }
-        }
-
   function put() {
-
-    let query = `query {
-      modify${props.entity} (
-          request:{
-            id:${props.rowData[props.id]}
-              ${props.columns.map(item => {
-      if (item.form == true) {
-        switch (item.type) {
-          case "text":
-            return item.accessor + ':"' + buildBody(item.accessor, item.type) + '"';
-          case "number":
-            return item.accessor + ':' + buildBody(item.accessor, item.type);
-          case "array":
-            return item.accessor + ':[' + rowData[item.accessor] + buildBody(item.accessor, item.type) + ']'
+    let mutation = `mutation {
+      modify${props.entity}(${props.entity}To:{
+        id:${rowData[props.id]}
+        ${props.columns.map(element => {
+      if (element.form === true) {
+        switch (element.type) {
+          case 'text':
+            return `${element.accessor}:"${document.getElementById(element.accessor+'Put').value}"`
+          case 'number':
+            return `${element.accessor}:${document.getElementById(element.accessor+'Put').value}`
         }
       }
     })}
-              ${props.foreignKeys ?
-        props.foreignKeys.map(item => {
-          switch (item.options.type) {
-            case "text":
-              return item.fk + ':"' + BuildBody(item.query, item.options.type) + '"'
-            case "number":
-              return item.fk + ':' + BuildBody(item.query, item.options.type)
-            case "array":
-              return item.fk + ':[' + rowData[item.query] + BuildBody(item.query, item.options.type)+']'
-          }
-        }) : ''}
-              }){
-          id
-          uuid
+        ${props.foreignKeys ?
+        props.foreignKeys.map(element => {
+          return `${element.entity.toLowerCase()}:{
+              ${element.value}:${document.getElementById(element.entity+'Put').value}
+            }`
+        })
+        : null}
+      }){
+        id
       }
   }`
-
-    Axios({
-      url: props.host,
-      method: 'POST',
-      data: {
-        query: query
-      }
-    }).then(res=>{
-      alert("Updated: "+JSON.stringify(res.data.data.createRequest));
-      handleClose();
-    }).catch(err=>{
-      console.log(err.message);
+    console.log(mutation);
+    
+    mutationData(props.host, mutation).then(response=>{
+    alert(`${props.entity} with id: ${response.data[`modify${props.entity}`].id} has been modified`);
+    handleClose()
+    props.refreshGrid()
+    }).catch(error=>{
+      console.log(error);
     })
   }
+
   return (
     <div>
       <Button
-        color={'success'}
+        justIcon
         simple
-        className={classes.actionButton}
+        color={'success'}
         onClick={handleClickOpen}
       >
         <EditIcon />
       </Button>
-      <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle >MODIFY {props.entity.replace('-', '_').toUpperCase()}?</DialogTitle>
-        <form className={'commentForm'} onSubmit={put}>
-        <DialogContent
-          id="modal-slide-description"
-          className={classes.modalBody}
+      <Dialog
+        fullWidth={true}
+        maxWidth={'md'}
+        classes={{
+          root: classes.center,
+          paper: classes.modal
+        }}
+        open={open}
+        transition={Transition}
+        keepMounted
+        onClose={handleClose}
+        aria-labelledby="modal-slide-title"
+        aria-describedby="modal-slide-description"
+      >
+        <DialogTitle
+          id="classic-modal-slide-title"
+          disableTypography
+          className={classes.modalHeader}
         >
-          <GridContainer
-            direction="row"
-            justify="flex-start"
-            alignItems="center"
+        <Button
+            justIcon
+            className={classes.modalCloseButton}
+            key="close"
+            aria-label="Close"
+            color="transparent"
+            onClick={() => setOpen(false)}
           >
-            {columns.map((element) =>
-              createUpdateForm(element)
-            )}
-          </GridContainer>
-        </DialogContent>
-        <DialogActions
-          className={classes.modalFooter + " " + classes.modalFooterCenter}
-        >
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button type={'submit'} color="success">
-          Done
+            <Close className={classes.modalClose} />
           </Button>
-        </DialogActions>
+          MODIFY {props.entity.replace('-', '_').toUpperCase()}?</DialogTitle>
+        <form className={'commentForm'} id='putForm'>
+          <DialogContent
+            id="modal-slide-description"
+            className={classes.modalBody}
+          >
+            <GridContainer
+              direction="row"
+              justify="flex-start"
+              alignItems="center"
+            >
+              {columns.map((element) =>
+                CreateForm(element, classesTextfield.textField, rowData[element.accessor], 'Put')
+              )}
+              {foreignKeys ? foreignKeys.map((element, key) =>
+                CreateComboBox(element, props.host, key, foreignKeysData?foreignKeysData[key]:null, 'Put')
+              ) : null}
+            </GridContainer>
+          </DialogContent>
+          <DialogActions
+            className={classes.modalFooter + " " + classes.modalFooterCenter}
+          >
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type={'button'} color="success" onClick={put}>
+              Done
+          </Button>
+          </DialogActions>
         </form>
       </Dialog>
     </div >

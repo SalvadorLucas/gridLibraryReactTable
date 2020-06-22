@@ -3,24 +3,22 @@ import TextField from '@material-ui/core/TextField';
 import GridItem from "../components/Grid/GridItem.js";
 //IMPORTS COMPONENTS DATE & SELECT
 import DateComponent from '../components/Date/dateComponent'
-import SelectComponent from '../components/Select/selectComponent'
-
-export function CreateComboBox(clas, fk, host, options, prefix) {//CREATE COMBO BOX COMPONENT WITH FOREIGN KEYS
+import SimpleSelect from '../components/Select/selectComponent'
+export function CreateComboBox(element, host, key, foreignKeyData, method) {//CREATE COMBO BOX COMPONENT WITH FOREIGN KEYS
   return (
-    <GridItem xs={12} md={6} lg={6} key={fk + clas}>
-      <SelectComponent
-        header={clas}
-        fk={fk} //NAME
-        label={clas} //LABEL FOR COMPONENT
-        options={options}//SETTING FOREIGN KEY
+    <GridItem xs={12} md={6} lg={6} key={key}>
+      <SimpleSelect
+        label={element.entity} //LABEL FOR COMPONENT
+        foreignKey={element}//SETTING FOREIGN KEY
         host={host}
-        prefix={prefix}
+        foreignKeyData={foreignKeyData}
+        method={method}
       />
     </GridItem>
   )
 }
 
-export function CreateForm(item, theme, defaultValue) {//CREATE FORM
+export function CreateForm(item, theme, defaultValue, method) {//CREATE FORM
   if (item.form == true) {
     switch (item.type) {
       case 'date':
@@ -32,7 +30,7 @@ export function CreateForm(item, theme, defaultValue) {//CREATE FORM
             key={item.accessor} //KEY FOR NEW COMPONENT
           >
             <DateComponent //CREATE DATE COMPONENT 
-              id={item.accessor} //ID FOR GET VALUE
+              id={item.accessor+method} //ID FOR GET VALUE
               label={item.header.toUpperCase()} //LABEL FOR COMPONENT
               name={item.accessor} //NAME FOR COMPONENT
               defaultValue={defaultValue}
@@ -53,7 +51,7 @@ export function CreateForm(item, theme, defaultValue) {//CREATE FORM
               margin={'normal'} //MARGIN TYPE
               InputLabelProps={{ shrink: true, }} //PROPS FOR LABEL 
               variant={'outlined'} //VARIANT TO USE
-              id={item.accessor} //ID FOR GET VALUE
+              id={item.accessor+method} //ID FOR GET VALUE
               type={'number'} //TEXTFIELD TYPE
               name={item.accessor} //TEXTFIELD NAME
               defaultValue={defaultValue}
@@ -76,7 +74,7 @@ export function CreateForm(item, theme, defaultValue) {//CREATE FORM
               margin={'normal'} //MARGIN TYPE
               InputLabelProps={{ shrink: true, }} //PROPS FOR LABEL
               variant={'outlined'} //VARIAN TO USE
-              id={item.accessor} //ID FOR GET VALUE
+              id={item.accessor+method} //ID FOR GET VALUE
               type={'text'} //TEXTFIELS TYPE
               defaultValue={defaultValue}
               name={item.accessor} //TEXTFIELD NAME
@@ -99,7 +97,7 @@ export function CreateForm(item, theme, defaultValue) {//CREATE FORM
                 margin={'normal'} //MARGIN TYPE
                 InputLabelProps={{ shrink: true, }} //PROPS FOR LABEL 
                 variant={'outlined'} //VARIANT TO USE
-                id={item.accessor} //ID FOR GET VALUE
+                id={item.accessor+method} //ID FOR GET VALUE
                 type={'number'} //TEXTFIELD TYPE
                 name={item.accessor} //TEXTFIELD NAME
                 defaultValue={defaultValue}

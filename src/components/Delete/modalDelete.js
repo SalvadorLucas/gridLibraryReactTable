@@ -86,7 +86,7 @@ export default function FormDialog(props) {
           >
             <Close className={classes.modalClose} />
           </Button>
-          DELETE {props.entity.replace('-', '_').toUpperCase()}</DialogTitle>
+          DELETE {props.title.replace('-', '_').toUpperCase()}</DialogTitle>
         <form className={'commentForm'} id='putForm'>
           <DialogContent
             id="modal-slide-description"

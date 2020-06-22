@@ -70,8 +70,6 @@ export default function FormDialog(props) {
         id
       }
   }`
-    console.log(mutation);
-    
     mutationData(props.host, mutation).then(response=>{
     alert(`${props.entity} with id: ${response.data[`modify${props.entity}`].id} has been modified`);
     handleClose()
@@ -120,7 +118,7 @@ export default function FormDialog(props) {
           >
             <Close className={classes.modalClose} />
           </Button>
-          MODIFY {props.entity.replace('-', '_').toUpperCase()}?</DialogTitle>
+          MODIFY {props.title.replace('-', '_').toUpperCase()}?</DialogTitle>
         <form className={'commentForm'} id='putForm'>
           <DialogContent
             id="modal-slide-description"

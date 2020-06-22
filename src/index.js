@@ -236,7 +236,7 @@ export default class App extends React.Component {
                       foreignKeys={this.props.foreignKeys}//SETTING FOREIGN KEYS
                       columns={this.props.columns}//COLUMNS
                       host={this.props.host}//HOST
-                      entity={this.state.title}//ENTITY
+                      entity={this.state.entity}//ENTITY
                       token={this.state.token}//TOKEN
                       owner={this.state.owner}
                       refresh={this.refresh}

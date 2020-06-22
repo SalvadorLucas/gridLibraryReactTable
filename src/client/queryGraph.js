@@ -52,7 +52,7 @@ const queryData = (title, sorted, filtered, url, entity, columns, id, token, ref
        * Adding actions custom buttons
        */
       filteredData.map((item) => {
-        item['actions'] = Actions(item, url.url, title, columns, id, token, refreshGrid, foreignKeys, foreignKeysData)
+        item['actions'] = Actions(item, url.url, title, entity, columns, id, token, refreshGrid, foreignKeys, foreignKeysData)
       })
       /**
        *End of adding buttons

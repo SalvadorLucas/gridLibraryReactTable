@@ -79,11 +79,13 @@ export default function FormDialog(props) {
               ${element.value}:${document.getElementById(element.entity+'Post').value}
             }`
         })
-        : null}
+        : ''}
       }){
         id
       }
   }`
+  console.log(mutation);
+  
   mutationData(props.host, mutation).then(response=>{
     alert(`New ${props.entity} with id: ${response.data[`create${props.entity}`].id} added`);
     document.getElementById('postForm').reset()

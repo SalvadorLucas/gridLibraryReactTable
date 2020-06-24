@@ -65,7 +65,7 @@ export default function FormDialog(props) {
               ${element.value}:${document.getElementById(element.entity+'Put').value}
             }`
         })
-        : null}
+        : ''}
       }){
         id
       }

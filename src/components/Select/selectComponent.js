@@ -24,6 +24,7 @@ function SimpleSelect(props) {
 
   const handleChange = (event) => {
     setAge(event.target.value);
+    console.info(event.target.value);
   };
   
     return (
@@ -35,9 +36,6 @@ function SimpleSelect(props) {
         onChange={handleChange}
         label="Age"
       >
-        <MenuItem value="">
-          <em></em>
-        </MenuItem>
         {foreignKeyData?foreignKeyData.map((element,key)=>{
           return <MenuItem key={key} value={element[foreignKey.value]}>{element[foreignKey.label]}</MenuItem>
         }):null}

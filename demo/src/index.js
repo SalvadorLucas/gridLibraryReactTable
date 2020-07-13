@@ -3,10 +3,22 @@ import { render } from 'react-dom'
 
 import Example from '../../src'
 const columns = [
-  { header:'Id', accessor:'id', type:'text', form: false, hidden: true },
-  { header:'Name', accessor:'name', type:'text', form: true, required: true, url:false },
-  { header: 'Description', accessor: 'description', type: 'text', form: true, required: true, url: false },
-  { header: 'Code', accessor: 'code', type: 'text', form: true, required: true, url: false },
+  {
+    Header: 'Id',
+    accessor: 'id'
+  },
+  {
+    Header: 'Name',
+    accessor: 'name'
+  },
+  {
+    Header: 'Description',
+    accessor: 'description'
+  },
+  {
+    Header: 'Code',
+    accessor: 'code'
+  },
 ]
 
 class Demo extends Component {
@@ -14,7 +26,7 @@ class Demo extends Component {
     return <div>
       <Example
         columns={columns}
-        host={'http://localhost:28080/graphql'}
+        uri={'http://localhost:28080/graphql'}
         entity={'Purpose'}
         id={'id'}
         title={'Purpose List'}

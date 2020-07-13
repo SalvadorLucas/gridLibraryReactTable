@@ -1,303 +1,45 @@
-import React from "react";
-import _ from "lodash";
-// Import React Table
-import ReactTable from "react-table";
-//HOCS
-import SelectTableHOC from 'react-table/lib/hoc/selectTable';
-//STYLES
-import "react-table/react-table.css";
-import './assets/scss/material-dashboard-pro-react/plugins/_plugin-react-table.scss'
-// @material-ui components
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles'
-import muiTheme from './assets/json/cimmyt-default-theme.json'
-// @material-ui/icons
-import Assignment from "@material-ui/icons/Assignment";
-// core components
-import GridContainer from "./components/Grid/GridContainer.js";
-import GridItem from "./components/Grid/GridItem.js";
-import Card from "./components/Card/Card.js";
-import CardBody from "./components/Card/CardBody.js";
-import CardIcon from "./components/Card/CardIcon.js";
-import CardHeader from "./components/Card/CardHeader.js";
-import ModalPost from './components/Post/modalPost'
-import Pagination from './components/CustomPagination/paginationComponent'
-import DorpDownComponent from './components/DropDown/dropDownComponent'
-// Functions
-import BuildUrl from './functions/buildUrl'
-import GenerateHeader from './functions/generateHeader'
-import queryData from './client/queryGraph'
-import getForeign from './client/queryGraphForeignKey'
-
-const Table = SelectTableHOC(ReactTable);
-
-const theme = createMuiTheme(muiTheme);
-
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      data: [],
-      pages: null,
-      loading: true,
-      entity: this.props.entity,
-      title: this.props.title.slice(0,-5),
-      columns: this.props.columns,
-      id: this.props.id,
-      token: this.props.token,
-      rowsSelected: [0],
-      selectAll: false,
-      page: 1,
-      pageSize: 10,
-      owner: this.props.owner,
-      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 1, 10),
-      filtered: [],
-      sorted: [],
-      startPage: 1,
-      endPage: 5,
-      foreignKeysData: []
-    };
-    this.toggleSelection = this.toggleSelection.bind(this)
-    this.fetchData = this.fetchData.bind(this);
-    this.flag = this.changePage.bind(this)//FLAG TO REFRESH GRID
-    this.changePageSize = this.changeSize.bind(this)//FLAG TO CHANGE GRID SIZE
-    this.refresh = this.refreshGrid.bind(this)
-    this.table = React.createRef()
-  }
-
-  fetchData(state, instance) {
-    // Whenever the table model changes, or the user sorts or changes pages, this method gets called and passed the current table model.
-    // You can set the `loading` prop of the table to true to use the built-in one or show you're own loading bar if you want.
-    this.setState({ loading: true });
-    // Request the data however you want.  Here, we'll use our mocked service we created earlier
-    queryData(
-      this.state.title,
-      state.sorted,
-      state.filtered,
-      this.state.url,
-      this.state.entity,
-      this.state.columns,
-      this.state.id,
-      this.state.token,
-      this.refresh,
-      this.props.foreignKeys,
-      this.state.foreignKeysData
-    )
-      .then(res => {
-        // Now just get the rows of data to your React Table (and update anything else like total pages or loading)
-        this.setState({
-          data: [],
-          pages: res.pages,
-          loading: false,
-          rowsSelected: []
-        }, () => {
-          this.setState({
-            data: res.rows,
-          })
-        });
-      });
-  }
-
-  toggleSelection(key, shift, row) {
-    const currentIndex = this.state.rowsSelected.indexOf(row[this.props.id]);
-    let newChecked = this.state.rowsSelected;
-    if (currentIndex === -1) {
-      newChecked.push(row[this.props.id]);
-    } else {
-      newChecked.splice(currentIndex, 1);
+import React from 'react'
+// PROVIDERS
+import { Provider } from 'react-redux'
+import { ApolloProvider } from '@apollo/react-hooks'
+// APOLLO CLIENT
+import { ApolloClient } from 'apollo-client'
+import { createHttpLink } from 'apollo-link-http'
+import { setContext } from 'apollo-link-context'
+import { InMemoryCache } from 'apollo-cache-inmemory'
+// REDUX
+import generateStore from './Redux'
+// CORE COMPONENTS
+import Table from './Pages/ReactTable'
+const store = generateStore()
+const authLink = setContext(({ headers }) => {
+    // get the authentication token from local storage if it exists
+    const token = localStorage.getItem('token')
+    // return the headers to the context so httpLink can read them
+    return {
+        headers: {
+            ...headers,
+            authorization: token ? `Bearer ${token}` : 'Bearer eyJ4NXQiOiJaalJtWVRNd05USmpPV1U1TW1Jek1qZ3pOREkzWTJJeU1tSXlZMkV6TWpkaFpqVmlNamMwWmciLCJraWQiOiJaalJtWVRNd05USmpPV1U1TW1Jek1qZ3pOREkzWTJJeU1tSXlZMkV6TWpkaFpqVmlNamMwWmdfUlMyNTYiLCJhbGciOiJSUzI1NiJ9.eyJodHRwOlwvXC93c28yLm9yZ1wvY2xhaW1zXC91c2VybmFtZSI6InhLNW04dUxjbWtsR3Nqb3J1aWRzelhzNnpMaHFEX1YyTTF1SUtyNl9Vd3MiLCJzdWIiOiJ4SzVtOHVMY21rbEdzam9ydWlkc3pYczZ6TGhxRF9WMk0xdUlLcjZfVXdzIiwiaHR0cDpcL1wvd3NvMi5vcmdcL2NsYWltc1wvcm9sZSI6WyIyMzdjMGM3YS1lYmU0LTRlYjYtYWM1OC1kNTc2ZmQ2MmM3YTkiLCIwYmRhNTczYi1lMTc4LTQ4MjQtOTVkMi03NDcwYjFiMzRlYjQiLCI5NGQ0MWZlMi00ZTcwLTQ3OTAtYTIzOC01YzVjMTRiMjc4MWMiLCI3ZDFhODczOS1jOWE5LTQ2MDYtODg3Ny1kYzkyZWYwNmVhNjgiLCJlMzBkOWUxMS1kNWJiLTQ1YjMtYTExOC02Mjg2ZDQ4N2RmYmYiLCIwNjY2MzYxYi1iMjk4LTRjMjMtYjBhMi00MGIyZDE1YWYyMjciLCJjNTMyNTNiZS0xYjY4LTQ0MjEtYmMxYi1jM2M5YWNlYTdhN2MiLCIxMDgwNjE1My0zZWNhLTRjODgtYjU2Yi04YzdmYzMwZDZmMGMiLCJiMDE3ZDExYi1lNDI5LTRiOTMtOWY3NC1jZWQ1MTcwMGE5NWQiLCJiY2RmOWNjMC04MDA1LTQ3NmYtYmIwNS03MWM5NmYwMzgxYTYiLCI0ZjZiODcwZS0xYjY2LTQ0YzgtYWMxYy1mMGUzNWYyNGQyODAiXSwiaXNzIjoiaHR0cHM6XC9cL2Vicy5jaW1teXQub3JnOjk0NDNcL29hdXRoMlwvdG9rZW4iLCJhdWQiOiJUN0JWdnFVb0hUZjR2aEJVSjlkVk45emZLR1lhIiwibmJmIjoxNTkxODU1MzY0LCJodHRwOlwvXC93c28yLm9yZ1wvY2xhaW1zXC9mdWxsbmFtZSI6WyJCUklPTkVTIFBFUkVZUkEiLCIgRXJuZXN0byBKb3NlIChDSU1NWVQpIl0sImh0dHA6XC9cL3dzbzIub3JnXC9jbGFpbXNcL2Rpc3BsYXlOYW1lIjoiRS5CUklPTkVTQENJTU1ZVC5PUkciLCJhenAiOiJUN0JWdnFVb0hUZjR2aEJVSjlkVk45emZLR1lhIiwic2NvcGUiOiJvcGVuaWQiLCJodHRwOlwvXC93c28yLm9yZ1wvY2xhaW1zXC9lbWFpbGFkZHJlc3MiOiJFLkJSSU9ORVNAY2ltbXl0Lm9ubWljcm9zb2Z0LmNvbSIsImV4cCI6MTU5MTg1ODk2NCwiaWF0IjoxNTkxODU1MzY0LCJqdGkiOiI0NDBlMzc2OC05NTlhLTRiODgtOWYyYS04Y2NhNjMxNWVhYmUifQ.gy7fE1Wf8GFQix9KnmCFI-3IIIYn1Wiq6GeIAca7gZnn5SCH3OeNpRYdVIih3Xs0t0EJkW4YuD5LTIICMNywpVKh93FfoYVIhbw1ghDcnBmcv__VwKlIuX7CTOLjzpID3PqYfIzkEeaxdaVx5zFutcWcKzzBGpUR8FypTYvCMnpWa9RZKhUvGvhAG_KC4HsnHVDkaE1HVmuR1_fOsCJg8E2JUxVFKnBe8uF40m_wyT_MeKRQvCF-2OKqVmsbF9Qi9hH-Juf7_X2WiKfbcAj-5p85KDxocUEGK04coVU2kIb0-886G5My-4IiqqpjxDGgprg4GescWkXxYaBTootCbQ',
+        },
     }
-    this.setState({
-      rowsSelected: newChecked
+})
+
+const EBSMasterDetail = (props) => {
+    const { uri } = props
+    const httpLink = createHttpLink({
+        uri: uri,
     })
-  }
-
-  toggleAll() {
-    const selectAll = this.state.selectAll ? false : true;
-    const selection = [];
-    if (selectAll) {
-      // we need to get at the internals of ReactTable
-      const wrappedInstance = this.table.current.wrappedInstance;
-      // the 'sortedData' property contains the currently accessible records based on the filter and sort
-      const currentRecords = wrappedInstance.getResolvedState().sortedData;
-      // we just push all the IDs onto the selection array
-      currentRecords.forEach(item => {
-        selection.push(item._original.id);
-      });
-    }
-    this.setState({
-      selectAll: selectAll,
-      rowsSelected: selection
-    });
-  }
-
-  changePage(page) {
-    this.setState({
-      selectAll: false,
-      page: page,
-      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, page, this.state.pageSize)
-    }, () => {
-      this.fetchData(this.table.current.wrappedInstance.state)
+    const client = new ApolloClient({
+        link: authLink.concat(httpLink),
+        cache: new InMemoryCache(),
+        credentials: 'include'
     })
-    //PAGINATOR CONDITIONS
-    switch (page) {
-      case this.state.pages - 1:
-        this.setState({
-          endPage: this.state.pages,
-          startPage: this.state.pages - 5
-        })
-        break;
-      case 1:
-        this.setState({
-          endPage: 5,
-          startPage: 1
-        })
-        break;
-      case this.state.endPage:
-        this.setState({
-          endPage: this.state.endPage + 5,
-          startPage: this.state.startPage + 5
-        })
-        break;
-      case this.state.startPage - 1:
-        this.setState({
-          endPage: this.state.endPage - 5,
-          startPage: this.state.startPage - 5
-        })
-        break;
-    }
-  }
-
-  changeSize(size) {
-    this.setState({
-      pageSize: Number(size),
-      page: 1,
-      url: BuildUrl(this.props.host, this.props.entity, this.props.columns, 1, Number(size))
-    }, () => {
-      this.fetchData(this.table.current.wrappedInstance.state)
-    })
-  }
-
-  refreshGrid() {
-    this.fetchData(this.table.current.wrappedInstance.state)
-  }
-  isSelected(key) {
-    /*
-      Instead of passing our external selection state we provide an 'isSelected'
-      callback and detect the selection state ourselves. This allows any implementation
-      for selection (either an array, object keys, or even a Javascript Set object).
-    */
-    return this.state.rowsSelected.includes(key);
-  };
-
-  componentDidMount(){
-    if(this.props.foreignKeys){
-      let foreignKeysData = []
-      this.props.foreignKeys.map(element=>{
-        getForeign(element,this.props.host).then(response=>{
-          foreignKeysData.push(response)
-        })
-      })
-      this.setState({
-        foreignKeysData:foreignKeysData
-      },()=>{
-        this.fetchData(this.table.current.wrappedInstance.state)
-      })
-    }
-  }
-
-  render() {
     return (
-      <GridContainer
-        spacing={1}
-        direction="row"
-        justify="flex-end"
-        alignItems="center">
-        <GridItem lg={12} md={12} sm={12} xl={12} xs={12}>
-          <Card>
-            <GridContainer
-              spacing={1}
-              direction="row"
-              justify="space-between"
-              alignItems="center">
-              <GridItem lg={11} md={10} sm={10} xl={11} xs={8}>
-                <CardHeader
-                  color="info" icon>
-                  <CardIcon
-                    color="success"
-                  >
-                    <Assignment />
-                  </CardIcon>
-                  <h3 style={{ color: 'black' }}>{this.props.title}</h3>
-                </CardHeader>
-              </GridItem>
-              <GridItem lg={1} md={2} sm={2} xl={1} xs={4}>
-                <CardHeader>
-                  <MuiThemeProvider theme={theme}>
-                    <ModalPost
-                      foreignKeys={this.props.foreignKeys}//SETTING FOREIGN KEYS
-                      columns={this.props.columns}//COLUMNS
-                      host={this.props.host}//HOST
-                      entity={this.state.entity}//ENTITY
-                      token={this.state.token}//TOKEN
-                      owner={this.state.owner}
-                      refresh={this.refresh}
-                      foreignKeysData={this.state.foreignKeysData}
-                    ></ModalPost>
-                  </MuiThemeProvider>
-                </CardHeader>
-              </GridItem>
-            </GridContainer>
-            <CardBody>
-              <Table
-                ref={this.table}
-                showPagination={false}
-                //HOC configuration
-                keyField={this.props.id}
-                isSelected={key =>
-                  this.isSelected(key)
-                }
-                selectType={'checkbox'}
-                toggleSelection={(key, shift, row) => {
-                  this.toggleSelection(key, shift, row)
-                }}
-                selectAll={this.state.selectAll}
-                toggleAll={() => this.toggleAll()}
-                //REACTABLE configuration
-                columns={GenerateHeader(this.props.columns)}
-                manual // Forces table not to paginate or sort automatically, so we can handle it server-side
-                data={this.state.data}
-                loading={this.state.loading} // Display the loading overlay when we need it
-                onFetchData={this.fetchData} // Request new data when things change
-                filterable
-                defaultPageSize={this.state.pageSize}
-                style={{
-                  height: "650px" // This will force the table body to overflow and scroll, since there is not enough room
-                }}
-                className="-striped -highlight"
-              />
-              <GridContainer
-                spacing={0}
-                direction="row"
-                justify="flex-end"
-                alignItems="center">
-                <GridItem lg={1} md={1} sm={1} xl={1} xs={1}>
-                  <DorpDownComponent
-                    onChange={this.changePageSize}
-                  />
-                </GridItem>
-                <GridItem lg={3} md={4} sm={6} xl={10} xs={10}>
-                  <Pagination
-                    pages={this.state.pages}
-                    startPage={this.state.startPage}
-                    endPage={this.state.endPage}
-                    currentPage={this.state.page}
-                    onClick={this.flag}
-                  />
-                </GridItem>
-              </GridContainer>
-            </CardBody>
-          </Card>
-        </GridItem>
-      </GridContainer>
-    );
-  }
+        <ApolloProvider client={client}>
+            <Provider store={store}>
+                <Table {...props} />
+            </Provider>
+        </ApolloProvider>
+    )
 }
+export default EBSMasterDetail

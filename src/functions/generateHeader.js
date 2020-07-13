@@ -1,6 +1,6 @@
-export default function generateHeader(cols){
-    let columns = []
-    columns.push({
+export default function generateHeader(columns){
+    let header = []
+    header.push({
         Header: "Actions",
         accessor: "actions",
         sortable: false,
@@ -8,13 +8,13 @@ export default function generateHeader(cols){
         filterable: false,
         width: 100
     })
-    cols.map((item) => {
+    columns.map((item) => {
       if(item.hidden == false || !item.hidden){
-        columns.push({
+        header.push({
             Header: item.header,
             accessor: item.accessor
         })
       }
     })
-    return columns
+    return header
   }

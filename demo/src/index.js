@@ -5,15 +5,11 @@ import Example from '../../src'
 const columns = [
   {
     Header: 'Id',
-    accessor: 'id'
+    accessor: 'id',
   },
   {
     Header: 'Name',
     accessor: 'name'
-  },
-  {
-    Header: 'Description',
-    accessor: 'description'
   },
   {
     Header: 'Code',
@@ -27,7 +23,7 @@ class Demo extends Component {
       <Example
         columns={columns}
         uri={'http://localhost:28080/graphql'}
-        entity={'Purpose'}
+        entity={'Service'}
         id={'id'}
         title={'Purpose List'}
       />

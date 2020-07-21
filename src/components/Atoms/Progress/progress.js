@@ -1,17 +1,16 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 // CORE COMPONENTS
-import LinearProgress from '@material-ui/core/LinearProgress';
+import Backdrop from '@material-ui/core/Backdrop'
+import CircularProgress from '@material-ui/core/CircularProgress'
 // STYLES
 import { makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles((theme) => ({
-  root: {
-    width: '100%',
-    '& > * + *': {
-      marginTop: theme.spacing(2),
-    },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: '#fff',
   },
-}));
+}))
 //MAIN FUNCTION
 /*
  @param props: component properties
@@ -26,21 +25,21 @@ const ProgressAtom = React.forwardRef((props, ref) => {
     /*
      @prop data-testid: Id to use inside progress.test.js file.
      */
-    <div data-testid={'ProgressTestId'} className={classes.root}>
-      <LinearProgress color={color} {...rest} ref={ref} />
-    </div>
+    <Backdrop className={classes.backdrop} data-testid={'ProgressTestId'} open={true} {...rest}>
+      <CircularProgress color={color} />
+    </Backdrop>
   )
 })
 // Type and required properties
 ProgressAtom.propTypes = {
   color: PropTypes.oneOf([
-    'primary',
-    'secondary',
+    'inherit',
+    'default',
   ]),
 }
 // Default properties
 ProgressAtom.defaultProps = {
-  color: 'primary',
+  color: 'inherit',
 }
 
 export default ProgressAtom

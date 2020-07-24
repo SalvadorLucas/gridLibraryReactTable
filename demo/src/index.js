@@ -6,14 +6,17 @@ const columns = [
   {
     Header: 'Id',
     accessor: 'id',
+    hidden: true
   },
   {
     Header: 'Name',
-    accessor: 'name'
+    accessor: 'name',
+    filter: true,
   },
   {
     Header: 'Code',
-    accessor: 'code'
+    accessor: 'code',
+    filter: true,
   },
 ]
 
@@ -25,7 +28,7 @@ class Demo extends Component {
         uri={'http://localhost:28080/graphql'}
         entity={'Service'}
         id={'id'}
-        title={'Purpose List'}
+        title={'Service List'}
       />
     </div>
   }

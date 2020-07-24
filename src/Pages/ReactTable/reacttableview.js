@@ -19,7 +19,6 @@ import {
   useTable,
   useSortBy,
   useFilters,
-  useGlobalFilter,
   useRowSelect,
 } from 'react-table'
 import matchSorter from 'match-sorter'
@@ -29,7 +28,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 import SortIcon from '@material-ui/icons/Sort'
 // Other Components
 import Progress from '../../components/Atoms/Progress'
-import Toolbar from '../../components/Molecules/Toolbar'
+import Toolbar from '../Toolbar'
 import Pagination from '../Pagination'
 
 const useStyles = makeStyles({
@@ -91,7 +90,14 @@ fuzzyTextFilterFn.autoRemove = val => !val
 
 const Table = (props) => {
   const classes = useStyles()
-  const { data, uri, entity, UpdateRowsSelected, ...rest } = props
+  const { data, uri, entity, title, UpdateRowsSelected, ...rest } = props
+  let hiddenColumns = []
+  // Prepare hidden columns
+  props.columns.map(column => {
+    column.hidden ? hiddenColumns.push(column.accessor)
+      : null
+  })
+  // Prepare columns
   const columns = React.useMemo(() => props.columns, [])
   const filterTypes = React.useMemo(
     () => ({
@@ -128,16 +134,17 @@ const Table = (props) => {
     allColumns,
     getToggleHideAllColumnsProps,
     selectedFlatRows,
-    state,
   } = useTable(
     {
       columns,
       data,
       defaultColumn, // Be sure to pass the defaultColumn option
       filterTypes,
+      initialState: {
+        hiddenColumns: hiddenColumns
+      }
     },
     useFilters, // useFilters!
-    useGlobalFilter, // useGlobalFilter!
     useSortBy,
     useRowSelect, // useRowSelect!
     hooks => {
@@ -156,7 +163,6 @@ const Table = (props) => {
           // to the render a checkbox
           Cell: ({ row }) => (
             <div>
-              {/* {console.log(row.original)} */}
               <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
             </div>
           ),
@@ -170,7 +176,12 @@ const Table = (props) => {
   return (
     <React.Fragment>
       {/* TOOLBAR */}
-      <Toolbar allColumns={allColumns} getToggleHideAllColumnsProps={getToggleHideAllColumnsProps} />
+      <Toolbar
+        title={title}
+        columns={props.columns}
+        allColumns={allColumns}
+        getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
+      />
       {/* CARD FOR BORDER */}
       <Card className={classes.root} variant="outlined">
         <CardContent>
@@ -250,7 +261,7 @@ const Table = (props) => {
 export default function App(props) {
   const { uri, data, loading, GetData, entity, columns } = props
   if (loading === false && data.length === 0) {
-    GetData(uri, entity, columns, 1, 10)
+    GetData(uri, entity, columns)
   }
   if (data.length === 0 || loading === true) {
     return (

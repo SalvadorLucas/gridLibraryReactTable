@@ -59,7 +59,7 @@ const CustomColumnsAtom = React.forwardRef((props, ref) => {
     /* 
      @prop data-testid: Id to use inside customcolumns.test.js file.
      */
-    <FormControl data-testid='CustomColumnsTestId' className={classes.formControl} ref={ref} {...rest}>
+    <FormControl data-testid='CustomColumnsTestId' className={classes.formControl} ref={ref}>
       <InputLabel>Columns</InputLabel>
       <Select
         variant='standard'
@@ -70,15 +70,17 @@ const CustomColumnsAtom = React.forwardRef((props, ref) => {
         renderValue={(selected) => `Custom`}
         MenuProps={MenuProps}
       >
-        <MenuItem>
+        {/* <MenuItem>
           <IndeterminateCheckbox color="primary" {...getToggleHideAllColumnsProps()} />
           <ListItemText primary={'Toggle All'} />
-        </MenuItem>
+        </MenuItem> */}
         {allColumns.map(column => (
-          <MenuItem key={column.id} value={column.id}>
-            <Checkbox color="primary" {...column.getToggleHiddenProps()} />
-            <ListItemText primary={column.id} />
-          </MenuItem>
+          column.hidden != true ?
+            <MenuItem key={column.id} value={column.id}>
+              <Checkbox color="primary" {...column.getToggleHiddenProps()} />
+              <ListItemText primary={column.id} />
+            </MenuItem>
+            : null
         ))}
       </Select>
     </FormControl>

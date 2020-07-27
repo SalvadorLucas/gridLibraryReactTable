@@ -3,17 +3,15 @@ import PropTypes from 'prop-types'
 // CORE COMPONENTS AND ATOMS TO USE
 import {
   Input,
-  InputLabel,
   MenuItem,
   FormControl,
   ListItemText,
   Select,
   Checkbox,
   Chip,
-  Typography,
 } from '@material-ui/core'
 // STYLES
-import { makeStyles, useTheme } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles((theme) => ({
   formControl: {
     margin: theme.spacing(0),
@@ -28,8 +26,8 @@ const useStyles = makeStyles((theme) => ({
     margin: 0,
   },
 }))
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
+const ITEM_HEIGHT = 48
+const ITEM_PADDING_TOP = 8
 const MenuProps = {
   PaperProps: {
     style: {
@@ -37,29 +35,16 @@ const MenuProps = {
       width: 250,
     },
   },
-};
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-]
+}
 //MAIN FUNCTION
 /*
  @param props: component properties
  @param ref: reference made by React.forward
 */
 const GlobalFilterMolecule = React.forwardRef((props, ref) => {
-  const { columns, UpdateColumnsToFilter, ...rest } = props
+  const { columns, UpdateColumnsToFilter, clean, ...rest } = props
   const classes = useStyles()
   const [selection, setSelection] = React.useState([])
-
   const handleChange = (event) => {
     UpdateColumnsToFilter(event.target.value)
     setSelection(event.target.value)
@@ -69,7 +54,7 @@ const GlobalFilterMolecule = React.forwardRef((props, ref) => {
     /* 
      @prop data-testid: Id to use inside globalfilter.test.js file.
      */
-    <FormControl className={classes.formControl} data-testid={'GlobalFilterTestId'}>
+    <FormControl className={classes.formControl} data-testid={'GlobalFilterTestId'} ref={ref}>
       <Select
         labelId="demo-mutiple-checkbox-label"
         id="demo-mutiple-checkbox"
@@ -100,11 +85,13 @@ const GlobalFilterMolecule = React.forwardRef((props, ref) => {
 })
 // Type and required properties
 GlobalFilterMolecule.propTypes = {
-
+  columns: PropTypes.array.isRequired,
+  UpdateColumnsToFilter: PropTypes.func.isRequired,
+  clean: PropTypes.bool
 }
 // Default properties
 GlobalFilterMolecule.defaultProps = {
-
+  clean: false
 }
 
 export default GlobalFilterMolecule

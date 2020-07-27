@@ -7,13 +7,16 @@ import {
   IconButton,
   Typography,
   InputBase,
-  // Badge,
+  Badge,
   Menu,
-  MenuItem
+  MenuItem,
+  Icon,
 } from '@material-ui/core'
 // OTHER COMPONENTS
 import CustomColumns from '../../components/Atoms/CustomColumns'
 import GlobalFilter from '../../components/Molecules/GlobalFilter'
+import FilterICon from '../../components/Atoms/Icons/addFilter'
+import RemoveFilterICon from '../../components/Atoms/Icons/removeFilter'
 // ICONS
 import SettingsIcon from '@material-ui/icons/Settings'
 import SearchIcon from '@material-ui/icons/Search'
@@ -21,6 +24,9 @@ import MoreIcon from '@material-ui/icons/MoreVert'
 // STYLES
 import { fade, makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles((theme) => ({
+  appBar: {
+    background : '#4d4d4d'
+  },
   grow: {
     flexGrow: 1,
   },
@@ -78,16 +84,21 @@ const useStyles = makeStyles((theme) => ({
       display: 'none',
     },
   },
+  icons: {
+    '& > svg': {
+      margin: theme.spacing(2),
+    },
+  },
 }))
 //You can use { name, Function, ... } as properties for you container
 export default function ToolbarView(props) {
   const { uri, entity, title, columns, pageSize, columnsToFilter,
-    HandleGlobalFilter, UpdateColumnsToFilter, ...rest } = props
+    HandleGlobalFilter, UpdateColumnsToFilter, RemoveColumnsToFilter, toolbarActions, ...rest } = props
   const classes = useStyles()
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
   const [searchValue, setSearchValue] = React.useState('')
-
+  const [cleanFilters, setCleanFilters] = React.useState(false)
   const isMenuOpen = Boolean(anchorEl)
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
 
@@ -145,15 +156,15 @@ export default function ToolbarView(props) {
           </Badge>
         </IconButton>
         <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
       </MenuItem> */}
+      <MenuItem>
+        {/* <IconButton aria-label="show 11 new notifications" color="inherit"> */}
+        {/* <Badge badgeContent={11} color="secondary"> */}
+        {/* <NotificationsIcon   /> */}
+        {/* </Badge> */}
+        {/* </IconButton> */}
+        {toolbarActions}
+      </MenuItem>
       <MenuItem onClick={handleSettingsMenuOpen}>
         <IconButton
           aria-label="settings of current user"
@@ -172,19 +183,12 @@ export default function ToolbarView(props) {
    */
   return (
     <div className={classes.grow}>
-      <AppBar position="static" data-testid={'ToolbarTestId'}>
+      <AppBar position="static" data-testid={'ToolbarTestId'} className={classes.appBar}>
         <Toolbar>
           <Typography className={classes.title} variant="h6" noWrap>
             {title}
           </Typography>
           <div className={classes.search}>
-            <IconButton
-              color="inherit"
-              className={classes.searchIcon}
-              onClick={handleGlobalFilter}
-            >
-              <SearchIcon />
-            </IconButton>
             <InputBase
               placeholder="Search…"
               classes={{
@@ -194,12 +198,34 @@ export default function ToolbarView(props) {
               onChange={handleChange}
               inputProps={{ 'aria-label': 'search' }}
             />
+            <IconButton
+              color="inherit"
+              className={classes.searchIcon}
+              onClick={handleGlobalFilter}
+            >
+              <SearchIcon />
+            </IconButton>
           </div>
-          <Typography className={classes.title} variant="subtitle1" noWrap>
-            Filter by columns:
-          </Typography>
+          <div className={classes.icons}>
+            {/* ENABLE BUTTON TO CLEAR FILTERS */}
+            {columnsToFilter.length > 0 ?
+              <IconButton
+                color={'inherit'}
+                onClick={() => { }}
+              >
+                <RemoveFilterICon color={'inherit'} />
+              </IconButton>
+              :
+              <IconButton
+                color={'inherit'}
+                onClick={() => { }}
+              >
+                <FilterICon color={'inherit'} />
+              </IconButton>
+            }
+          </div>
           <div className={classes.grow}>
-            <GlobalFilter UpdateColumnsToFilter={UpdateColumnsToFilter} columns={columns} />
+            <GlobalFilter UpdateColumnsToFilter={UpdateColumnsToFilter} columns={columns} clean={cleanFilters} />
           </div>
           <div className={classes.search} />
           <div className={classes.sectionDesktop}>
@@ -207,12 +233,12 @@ export default function ToolbarView(props) {
               <Badge badgeContent={4} color="secondary">
                 <MailIcon />
               </Badge>
-            </IconButton>
-            <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="secondary">
-                <NotificationsIcon />
-              </Badge>
             </IconButton> */}
+            {/* <IconButton aria-label="show 17 new notifications" color="inherit"> */}
+            {/* <Badge badgeContent={17} color="secondary"> */}
+            {toolbarActions}
+            {/* </Badge> */}
+            {/* </IconButton> */}
             <IconButton
               edge="end"
               aria-label="settings of current user"

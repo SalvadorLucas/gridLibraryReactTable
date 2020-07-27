@@ -2,14 +2,15 @@ import React from 'react'
 // CORE COMPONENTS
 import {
   CssBaseline,
-  TableBody,
-  TableCell,
   TableHead,
+  TableBody,
   TableRow,
+  TableCell,
   Card,
   CardContent,
   CardActions,
   Grid,
+  Typography,
   TextField,
   Checkbox,
 } from '@material-ui/core'
@@ -90,7 +91,7 @@ fuzzyTextFilterFn.autoRemove = val => !val
 
 const Table = (props) => {
   const classes = useStyles()
-  const { data, uri, entity, title, UpdateRowsSelected, ...rest } = props
+  const { data, uri, entity, title, UpdateRowsSelected, toolbarActions, ...rest } = props
   let hiddenColumns = []
   // Prepare hidden columns
   props.columns.map(column => {
@@ -156,14 +157,14 @@ const Table = (props) => {
           // to render a checkbox
           Header: ({ getToggleAllRowsSelectedProps }) => (
             <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+              <IndeterminateCheckbox color='default' {...getToggleAllRowsSelectedProps()} />
             </div>
           ),
           // The cell can use the individual row's getToggleRowSelectedProps method
           // to the render a checkbox
           Cell: ({ row }) => (
             <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+              <IndeterminateCheckbox color='default' {...row.getToggleRowSelectedProps()} />
             </div>
           ),
         },
@@ -181,6 +182,7 @@ const Table = (props) => {
         columns={props.columns}
         allColumns={allColumns}
         getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
+        toolbarActions={toolbarActions}
       />
       {/* CARD FOR BORDER */}
       <Card className={classes.root} variant="outlined">
@@ -200,7 +202,9 @@ const Table = (props) => {
                         alignItems="center"
                       >
                         <Grid item xs={11} sm={3} md={3} lg={3} xl={3}>
-                          {column.render('Header')}
+                          <Typography variant={'h6'}>
+                            {column.render('Header')}
+                          </Typography>
                         </Grid>
                         <Grid item xs={1} sm={1} md={1} lg={1} xl={1}>
                           {column.canSort ?
@@ -270,7 +274,7 @@ export default function App(props) {
   } else {
     return (
       <React.Fragment>
-        <CssBaseline />
+        {/* <CssBaseline /> */}
         <Table {...props} />
       </React.Fragment>
     )

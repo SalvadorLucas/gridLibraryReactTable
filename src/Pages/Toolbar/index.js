@@ -1,6 +1,9 @@
 import { connect } from 'react-redux'
 import ToolbarView from './toolbarview'
-import { HandleGlobalFilter, UpdateColumnsToFilter } from '../../Redux/Modules/ReactTable'
+import {
+  HandleGlobalFilter,
+  UpdateColumnsToFilter,
+} from '../../Redux/Modules/ReactTable'
 /*
 Here you send the status that the container will handle.
 */

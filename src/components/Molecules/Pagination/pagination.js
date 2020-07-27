@@ -44,7 +44,7 @@ const PaginationMolecule = React.forwardRef((props, ref) => {
           classes={classes.root}
         >
           <Pagination
-            color="primary"
+            // color="primary"
             count={pages}
             page={currentPage}
             onChange={handleChange}

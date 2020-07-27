@@ -74,7 +74,7 @@ const GlobalFilterMolecule = React.forwardRef((props, ref) => {
         {columns.map((column, key) => (
           column.filter ?
             <MenuItem key={key} value={column.accessor}>
-              <Checkbox color="primary" checked={selection.indexOf(column.accessor) > -1} />
+              <Checkbox color="default" checked={selection.indexOf(column.accessor) > -1} />
               <ListItemText primary={column.Header} />
             </MenuItem>
             : null

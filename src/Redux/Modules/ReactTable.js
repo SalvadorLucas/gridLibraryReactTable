@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import axios from 'axios'
 /*
  Here goes initial state and properties to be changed
  */
@@ -118,7 +119,40 @@ export const UpdateColumnsToFilter = (selection) => (dispatch) => {
   dispatch(updateColumnsToFilter(selection))
 }
 // Async functions
-export const GetData = (uri, entity, columns) => async (dispatch) => {
+export const GetData = (uri, entity, columns, type) => async (dispatch) => {
+  switch (type.toLowerCase()) {
+    case 'brapi':
+      dispatch(ApiWrapi(uri, entity, columns))
+      break
+    case 'graphql':
+      dispatch(ApiGraphQL(uri, entity, columns))
+      break
+    default:
+      return
+  }
+}
+
+export const ApiWrapi = (uri, entity, columns) => async (dispatch) => {
+  axios.get(uri, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Content-Type': 'application/json',
+    }
+  }).then(result => {
+    let payload = {
+      uri: uri,
+      entity: entity,
+      columns: columns,
+      data: result.data.result.data,
+      pages: result.data.metadata.pagination.totalPages
+    }    
+    dispatch(successGetData(payload))
+  }).catch(error => {
+    dispatch(errorGetData(error))
+  })
+}
+
+export const ApiGraphQL = (uri, entity, columns) => async (dispatch) => {
   const client = new ApolloClient({
     cache: new InMemoryCache({
       addTypename: false

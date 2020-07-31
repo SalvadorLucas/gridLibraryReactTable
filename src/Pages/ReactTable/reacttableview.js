@@ -170,7 +170,7 @@ const Table = (props) => {
         },
         ...columns,
       ])
-    }
+    },
   )
 
   // Render the UI for your table
@@ -201,8 +201,8 @@ const Table = (props) => {
                         justify="space-between"
                         alignItems="center"
                       >
-                        <Grid item xs={11} sm={3} md={3} lg={3} xl={3}>
-                          <Typography variant={'h6'}>
+                        <Grid item xs={11} sm={11} md={11} lg={11} xl={11}>
+                          <Typography variant={'subtitle2'}>
                             {column.render('Header')}
                           </Typography>
                         </Grid>
@@ -263,9 +263,9 @@ const Table = (props) => {
 }
 
 export default function App(props) {
-  const { uri, data, loading, GetData, entity, columns } = props
+  const { uri, data, loading, GetData, entity, columns, callStandard, ...rest } = props
   if (loading === false && data.length === 0) {
-    GetData(uri, entity, columns)
+    GetData(uri, entity, columns, callStandard)
   }
   if (data.length === 0 || loading === true) {
     return (

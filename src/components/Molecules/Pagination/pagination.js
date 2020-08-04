@@ -21,11 +21,11 @@ const useStyles = makeStyles((theme) => ({
 const PaginationMolecule = React.forwardRef((props, ref) => {
   const classes = useStyles()
   // Properties of the molecule
-  const { uri, pages, page, pageSize, entity, columns, HandleChangePage, ...rest } = props
+  const { uri, pages, page, pageSize, entity, columns, callStandard, GetData, ...rest } = props
   const [currentPage, setCurrentPage] = React.useState(page)
   const handleChange = (event, value) => {
     setCurrentPage(value)
-    HandleChangePage(uri, entity, columns, value, pageSize)
+    GetData(uri, entity, columns, callStandard, value, pageSize)
   }
   return (
     /* 
@@ -58,9 +58,9 @@ const PaginationMolecule = React.forwardRef((props, ref) => {
 })
 // Type and required properties
 PaginationMolecule.propTypes = {
-  HandleChangePage: PropTypes.func.isRequired,
+  GetData: PropTypes.func.isRequired,
   page: PropTypes.number,
-  pages: PropTypes.number.isRequired,
+  pages: PropTypes.number,
   entity: PropTypes.string.isRequired,
   columns: PropTypes.array.isRequired,
   uri: PropTypes.string.isRequired,
@@ -69,6 +69,7 @@ PaginationMolecule.propTypes = {
 // Default properties
 PaginationMolecule.defaultProps = {
   page: 1,
+  pages: 1,
 }
 
 export default PaginationMolecule

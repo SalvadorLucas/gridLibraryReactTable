@@ -1,7 +1,7 @@
 import { connect } from 'react-redux'
 import ToolbarView from './toolbarview'
 import {
-  HandleGlobalFilter,
+  GetData,
   UpdateColumnsToFilter,
 } from '../../Redux/Modules/ReactTable'
 /*
@@ -13,8 +13,9 @@ export default connect(
     entity: state.ReactTable.entity,
     columns: state.ReactTable.columns,
     pageSize: state.ReactTable.pageSize,
-    columnsToFilter: state.ReactTable.columnsToFilter
+    columnsToFilter: state.ReactTable.columnsToFilter,
+    rowSelected: state.ReactTable.rowSelected,
   }),
   //Here goes functions that you want to inyect into container
-  { HandleGlobalFilter, UpdateColumnsToFilter },
+  { GetData, UpdateColumnsToFilter },
 )(ToolbarView)

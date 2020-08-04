@@ -16,13 +16,4 @@ export default function PaginationView(props) {
 }
 // Type and required properties
 PaginationView.propTypes = {
-  pages: PropTypes.number,
-  page: PropTypes.number,
-  pageSize: PropTypes.number,
-}
-// Default properties
-PaginationView.defaultProps = {
-  pages: 1,
-  page: 1,
-  pageSize: 10
 }

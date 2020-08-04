@@ -1,7 +1,7 @@
 import React from 'react'
 // CORE COMPONENTS
 import {
-  CssBaseline,
+  TableContainer,
   TableHead,
   TableBody,
   TableRow,
@@ -47,6 +47,9 @@ const useStyles = makeStyles({
   pos: {
     marginBottom: 12,
   },
+  container: {
+    maxHeight: 500,
+  },
 })
 // UI for Row Selection
 const IndeterminateCheckbox = React.forwardRef(
@@ -57,7 +60,6 @@ const IndeterminateCheckbox = React.forwardRef(
     React.useEffect(() => {
       resolvedRef.current.indeterminate = indeterminate
     }, [resolvedRef, indeterminate])
-
     return (
       <div>
         <Checkbox color="primary" ref={resolvedRef} {...rest} />
@@ -91,7 +93,7 @@ fuzzyTextFilterFn.autoRemove = val => !val
 
 const Table = (props) => {
   const classes = useStyles()
-  const { data, uri, entity, title, UpdateRowsSelected, toolbarActions, ...rest } = props
+  const { data, uri, entity, title, UpdateRowsSelected, toolbarActions, actions, ...rest } = props
   let hiddenColumns = []
   // Prepare hidden columns
   props.columns.map(column => {
@@ -156,16 +158,38 @@ const Table = (props) => {
           // The header can use the table's getToggleAllRowsSelectedProps method
           // to render a checkbox
           Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox color='default' {...getToggleAllRowsSelectedProps()} />
-            </div>
+            <Grid
+              container
+              direction="row"
+              justify="space-between"
+              alignItems="center"
+            >
+              <Grid item xs={3} sm={3} md={3} lg={3} xl={3}>
+                <IndeterminateCheckbox color='default' {...getToggleAllRowsSelectedProps()} />
+              </Grid>
+              <Grid item xs={9} sm={9} md={9} lg={9} xl={9}>
+                <Typography variant={'subtitle1'}>
+                  Actions
+                </Typography>
+              </Grid>
+            </Grid>
           ),
           // The cell can use the individual row's getToggleRowSelectedProps method
           // to the render a checkbox
           Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox color='default' {...row.getToggleRowSelectedProps()} />
-            </div>
+            <Grid
+              container
+              direction="row"
+              justify="space-between"
+              alignItems="center"
+            >
+              <Grid item xs={2} sm={2} md={2} lg={2} xl={2}>
+                <IndeterminateCheckbox color='default' {...row.getToggleRowSelectedProps()} />
+              </Grid>
+              <Grid item xs={10} sm={10} md={10} lg={10} xl={10}>
+                {actions(row.original)}
+              </Grid>
+            </Grid>
           ),
         },
         ...columns,
@@ -183,79 +207,82 @@ const Table = (props) => {
         allColumns={allColumns}
         getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
         toolbarActions={toolbarActions}
+        {...rest}
       />
       {/* CARD FOR BORDER */}
       <Card className={classes.root} variant="outlined">
         <CardContent>
           {/* TABLE */}
-          <MaUTable {...getTableProps()}>
-            {/* HEADERS */}
-            <TableHead>
-              {headerGroups.map(headerGroup => (
-                <TableRow {...headerGroup.getHeaderGroupProps()}>
-                  {headerGroup.headers.map(column => (
-                    <TableCell {...column.getHeaderProps(column.getSortByToggleProps())}>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="space-between"
-                        alignItems="center"
-                      >
-                        <Grid item xs={11} sm={11} md={11} lg={11} xl={11}>
-                          <Typography variant={'subtitle2'}>
-                            {column.render('Header')}
-                          </Typography>
+          <TableContainer className={classes.container}>
+            <MaUTable stickyHeader {...getTableProps()}>
+              {/* HEADERS */}
+              <TableHead>
+                {headerGroups.map(headerGroup => (
+                  <TableRow {...headerGroup.getHeaderGroupProps()}>
+                    {headerGroup.headers.map(column => (
+                      <TableCell {...column.getHeaderProps(column.getSortByToggleProps())}>
+                        <Grid
+                          container
+                          direction="row"
+                          justify="space-between"
+                          alignItems="center"
+                        >
+                          <Grid item xs={11} sm={11} md={11} lg={11} xl={11}>
+                            <Typography variant={'subtitle1'}>
+                              {column.render('Header')}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={1} sm={1} md={1} lg={1} xl={1}>
+                            {column.canSort ?
+                              column.isSorted ?
+                                column.isSortedDesc ?
+                                  <KeyboardArrowDownIcon />
+                                  : <ExpandLessIcon />
+                                : <SortIcon />
+                              : null}
+                          </Grid>
                         </Grid>
-                        <Grid item xs={1} sm={1} md={1} lg={1} xl={1}>
-                          {column.canSort ?
-                            column.isSorted ?
-                              column.isSortedDesc ?
-                                <KeyboardArrowDownIcon />
-                                : <ExpandLessIcon />
-                              : <SortIcon />
-                            : null}
-                        </Grid>
-                      </Grid>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-
-              {/* FILTERS */}
-              {headerGroups.map((headerGroup, key) => (
-                <TableRow key={key}>
-                  {headerGroup.headers.map((column, key) => (
-                    <TableCell key={key}>
-                      {column.canFilter ? column.render('Filter') : null}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHead>
-
-            {/* DATA */}
-            <TableBody>
-              {rows.map((row, i) => {
-                prepareRow(row)
-                return (
-                  <TableRow {...row.getRowProps()}>
-                    {row.cells.map(cell => {
-                      return (
-                        <TableCell {...cell.getCellProps()}>
-                          {cell.render('Cell')}
-                        </TableCell>
-                      )
-                    })}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                )
-              })}
-            </TableBody>
-          </MaUTable>
+                ))}
+
+                {/* FILTERS */}
+                {headerGroups.map((headerGroup, key) => (
+                  <TableRow key={key}>
+                    {headerGroup.headers.map((column, key) => (
+                      <TableCell key={key}>
+                        {column.canFilter ? column.render('Filter') : null}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHead>
+
+              {/* DATA */}
+              <TableBody>
+                {rows.map((row, i) => {
+                  prepareRow(row)
+                  return (
+                    <TableRow {...row.getRowProps()}>
+                      {row.cells.map(cell => {
+                        return (
+                          <TableCell {...cell.getCellProps()}>
+                            {cell.render('Cell')}
+                          </TableCell>
+                        )
+                      })}
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </MaUTable>
+          </TableContainer>
         </CardContent>
         <CardActions>
           {/* ACTION TO UPDATE ROWS SELECTED AND VALUES */}
           {UpdateRowsSelected(selectedFlatRows)}
-          <Pagination uri={uri} entity={entity} columns={props.columns} />
+          <Pagination uri={uri} entity={entity} columns={props.columns} {...rest} />
         </CardActions>
       </Card>
     </React.Fragment>
@@ -264,17 +291,16 @@ const Table = (props) => {
 
 export default function App(props) {
   const { uri, data, loading, GetData, entity, columns, callStandard, ...rest } = props
-  if (loading === false && data.length === 0) {
-    GetData(uri, entity, columns, callStandard)
-  }
-  if (data.length === 0 || loading === true) {
+  React.useEffect(() => {
+    GetData(uri, entity, columns, callStandard, 1, 10)
+  }, [])
+  if (loading === true) {
     return (
       <Progress />
     )
   } else {
     return (
       <React.Fragment>
-        {/* <CssBaseline /> */}
         <Table {...props} />
       </React.Fragment>
     )

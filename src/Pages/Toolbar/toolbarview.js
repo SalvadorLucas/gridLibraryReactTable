@@ -25,7 +25,7 @@ import MoreIcon from '@material-ui/icons/MoreVert'
 import { fade, makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles((theme) => ({
   appBar: {
-    background : '#4d4d4d'
+    background: '#4d4d4d'
   },
   grow: {
     flexGrow: 1,
@@ -92,8 +92,8 @@ const useStyles = makeStyles((theme) => ({
 }))
 //You can use { name, Function, ... } as properties for you container
 export default function ToolbarView(props) {
-  const { uri, entity, title, columns, pageSize, columnsToFilter,
-    HandleGlobalFilter, UpdateColumnsToFilter, RemoveColumnsToFilter, toolbarActions, ...rest } = props
+  const { uri, entity, title, columns, pageSize, columnsToFilter, GetData, rowSelected,
+    callStandard, UpdateColumnsToFilter, RemoveColumnsToFilter, toolbarActions, ...rest } = props
   const classes = useStyles()
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null)
@@ -118,8 +118,8 @@ export default function ToolbarView(props) {
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget)
   }
-  const handleGlobalFilter = () => {
-    HandleGlobalFilter(uri, entity, columns, 1, pageSize, columnsToFilter, searchValue)
+  const handleFilter = () => {
+    GetData(uri, entity, columns, callStandard, 1, pageSize, columnsToFilter, searchValue)
   }
   const handleChange = (event) => {
     setSearchValue(event.target.value)
@@ -163,7 +163,7 @@ export default function ToolbarView(props) {
         {/* <NotificationsIcon   /> */}
         {/* </Badge> */}
         {/* </IconButton> */}
-        {toolbarActions}
+        {toolbarActions(rowSelected)}
       </MenuItem>
       <MenuItem onClick={handleSettingsMenuOpen}>
         <IconButton
@@ -201,7 +201,7 @@ export default function ToolbarView(props) {
             <IconButton
               color="inherit"
               className={classes.searchIcon}
-              onClick={handleGlobalFilter}
+              onClick={handleFilter}
             >
               <SearchIcon />
             </IconButton>
@@ -236,7 +236,7 @@ export default function ToolbarView(props) {
             </IconButton> */}
             {/* <IconButton aria-label="show 17 new notifications" color="inherit"> */}
             {/* <Badge badgeContent={17} color="secondary"> */}
-            {toolbarActions}
+            {toolbarActions(rowSelected)}
             {/* </Badge> */}
             {/* </IconButton> */}
             <IconButton
@@ -275,5 +275,5 @@ ToolbarView.propTypes = {
   columns: PropTypes.array.isRequired,
   pageSize: PropTypes.number.isRequired,
   columnsToFilter: PropTypes.array.isRequired,
-  HandleGlobalFilter: PropTypes.func.isRequired
+  GetData: PropTypes.func.isRequired
 }

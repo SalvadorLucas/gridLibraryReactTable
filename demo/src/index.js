@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { IconButton } from '@material-ui/core'
+import { IconButton, Button } from '@material-ui/core'
 import AddIcon from '@material-ui/icons/Add'
+import DeleteIcon from '@material-ui/icons/Delete'
 import { render } from 'react-dom'
 
 import Example from '../../src'
@@ -29,9 +30,9 @@ const rColumns = [
   // { Header: 'RM_Service', accessor: 'RM_Service' },
   // { Header: 'RM_ServiceProvider', accessor: 'RM_ServiceProvider' },
   // { Header: 'RM_ServiceType', accessor: 'RM_ServiceType' },
-  // { Header: 'admin_contact', accessor: 'admin_contact' },
-  // { Header: 'charge_account', accessor: 'charge_account' },
-  // { Header: 'creation_timestamp', accessor: 'creation_timestamp' },
+  { Header: 'admin_contact', accessor: 'admin_contact' },
+  { Header: 'charge_account', accessor: 'charge_account' },
+  { Header: 'creation_timestamp', accessor: 'creation_timestamp' },
   // { Header: 'creator_id', accessor: 'creator_id' },
   // { Header: 'description', accessor: 'description' },
   // { Header: 'id', accessor: 'id', hidden: true },
@@ -49,9 +50,14 @@ const rColumns = [
   // { Header: 'workflow', accessor: 'workflow' },
   // { Header: 'workflowinstance_id', accessor: 'workflowinstance_id' },
 ]
-const AddButton = () => {
+const AddButton = (selection) => {
   return (
-    <IconButton title={'Button'} onClick={() => alert('action added')} color={'inherit'}><AddIcon /></IconButton>
+    <IconButton title={'Button'} onClick={() => alert(selection)} color={'inherit'}><AddIcon /></IconButton>
+  )
+}
+const Actions = (row) => {
+  return (
+    <IconButton onClick={() => alert(row.name)} color='primary'><DeleteIcon /></IconButton>
   )
 }
 
@@ -59,14 +65,15 @@ class Demo extends Component {
   render() {
     return <div>
       <Example
-        toolbarActions={AddButton()}
-        columns={rColumns}
-        uri={'http://localhost:8000/api/tenant/1/workflow/3/node/4'}
+        toolbarActions={AddButton}
+        columns={columns}
+        // uri={'http://localhost:8000/api/tenant/1/workflow/3/node/4'}
+        uri='http://localhost:18080/graphql'
         entity={'Service'}
         id={'id'}
         title={'Request Manager'}
-        // actions={<p></p>}
-        callStandard={'brapi'} // graphql or brapi
+        actions={Actions}
+        callStandard={'graphql'} // graphql or brapi
       />
     </div>
   }

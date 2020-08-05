@@ -207,6 +207,7 @@ const Table = (props) => {
         allColumns={allColumns}
         getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
         toolbarActions={toolbarActions}
+        hiddenColumns={hiddenColumns}
         {...rest}
       />
       {/* CARD FOR BORDER */}

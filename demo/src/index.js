@@ -57,7 +57,7 @@ const AddButton = (selection) => {
 }
 const Actions = (row) => {
   return (
-    <IconButton onClick={() => alert(row.name)} color='primary'><DeleteIcon /></IconButton>
+    <IconButton onClick={() => alert(row.id)} color='primary'><DeleteIcon /></IconButton>
   )
 }
 
@@ -66,14 +66,14 @@ class Demo extends Component {
     return <div>
       <Example
         toolbarActions={AddButton}
-        columns={columns}
-        // uri={'http://localhost:8000/api/tenant/1/workflow/3/node/4'}
-        uri='http://localhost:18080/graphql'
+        columns={rColumns}
+        uri={'http://localhost:8000/api/tenant/1/workflow/3/node/4'}
+        // uri='http://localhost:18080/graphql'
         entity={'Service'}
         id={'id'}
         title={'Request Manager'}
         actions={Actions}
-        callStandard={'graphql'} // graphql or brapi
+        callStandard={'brapi'} // graphql or brapi
       />
     </div>
   }

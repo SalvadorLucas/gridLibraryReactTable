@@ -64,7 +64,7 @@ PaginationMolecule.propTypes = {
   entity: PropTypes.string.isRequired,
   columns: PropTypes.array.isRequired,
   uri: PropTypes.string.isRequired,
-  pageSize: PropTypes.number.isRequired,
+  pageSize: PropTypes.number,
 }
 // Default properties
 PaginationMolecule.defaultProps = {

@@ -17,6 +17,7 @@ import CustomColumns from '../../components/Atoms/CustomColumns'
 import GlobalFilter from '../../components/Molecules/GlobalFilter'
 import FilterICon from '../../components/Atoms/Icons/addFilter'
 import RemoveFilterICon from '../../components/Atoms/Icons/removeFilter'
+import Exports from '../Exports'
 // ICONS
 import SettingsIcon from '@material-ui/icons/Settings'
 import SearchIcon from '@material-ui/icons/Search'
@@ -92,7 +93,7 @@ const useStyles = makeStyles((theme) => ({
 }))
 //You can use { name, Function, ... } as properties for you container
 export default function ToolbarView(props) {
-  const { uri, entity, title, columns, pageSize, columnsToFilter, GetData, rowSelected,
+  const { uri, entity, title, columns, pageSize, columnsToFilter, GetData, rowSelected, hiddenColumns,
     callStandard, UpdateColumnsToFilter, RemoveColumnsToFilter, toolbarActions, ...rest } = props
   const classes = useStyles()
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -227,7 +228,6 @@ export default function ToolbarView(props) {
           <div className={classes.grow}>
             <GlobalFilter UpdateColumnsToFilter={UpdateColumnsToFilter} columns={columns} clean={cleanFilters} />
           </div>
-          <div className={classes.search} />
           <div className={classes.sectionDesktop}>
             {/* <IconButton aria-label="show 4 new mails" color="inherit">
               <Badge badgeContent={4} color="secondary">
@@ -239,6 +239,7 @@ export default function ToolbarView(props) {
             {toolbarActions(rowSelected)}
             {/* </Badge> */}
             {/* </IconButton> */}
+            <Exports columns={columns} title={title}/>
             <IconButton
               edge="end"
               aria-label="settings of current user"
@@ -273,7 +274,7 @@ ToolbarView.propTypes = {
   uri: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   columns: PropTypes.array.isRequired,
-  pageSize: PropTypes.number.isRequired,
+  pageSize: PropTypes.number,
   columnsToFilter: PropTypes.array.isRequired,
   GetData: PropTypes.func.isRequired
 }

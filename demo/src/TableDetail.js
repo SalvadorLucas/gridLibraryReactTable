@@ -21,12 +21,14 @@ const TableDetail = React.forwardRef((props, ref) => {
     ]
     return (
         <MasterDetail
+            toolbar={false}
             columns={columns}
             uri='http://localhost:18080/graphql'
             entity='Service'
             id='id'
             title='Request'
             callstandard='graphql'
+            defaultfilter={[{ mod: "LK", col: "name", val: "Seed" }]}
         />
     )
 })

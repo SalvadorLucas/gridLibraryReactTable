@@ -11,6 +11,7 @@ import {
   TextField,
   Checkbox,
   IconButton,
+  ButtonGroup,
 } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import MaUTable from '@material-ui/core/Table'
@@ -31,15 +32,30 @@ import SortIcon from '@material-ui/icons/Sort'
 import { extractColumns } from '../../../Utils/Client'
 import Toolbar from '../ToolBar'
 
-const useStyles = makeStyles({
-  container: {
-    maxHeight: 500,
-  },
-  table: {
-    width: '100%',
-    maxHeight: '100%'
-  },
-})
+const useStyles = makeStyles((theme) => (
+  {
+    container: {
+      maxHeight: 500,
+    },
+    table: {
+      width: '100%',
+      maxHeight: '100%'
+    },
+    actions: {
+      width: 'fit-content',
+      border: `1px solid ${theme.palette.divider}`,
+      borderRadius: theme.shape.borderRadius,
+      backgroundColor: theme.palette.background.paper,
+      color: theme.palette.text.secondary,
+      '& svg': {
+        margin: theme.spacing(1.5),
+      },
+      '& hr': {
+        margin: theme.spacing(0, 0.5),
+      },
+    },
+  }
+))
 // UI for Row Selection
 const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
@@ -81,15 +97,19 @@ const fuzzyTextFilterFn = (rows, id, filterValue) => {
 fuzzyTextFilterFn.autoRemove = val => !val
 
 function Table(props) {
+  console.log(props);
   const classes = useStyles()
   const [columnstoFilter, setColumnsToFilter] = React.useState([])
   const [filterValue, setFilterValue] = React.useState(null)
-  const { data, uri, entity, title, UpdateRowsSelected, toolbarActions, actions, renderRowSubComponent, Client, ...rest } = props
+  const { toolbar, data, uri, entity, title, UpdateRowsSelected, toolbarActions, actions, renderRowSubComponent, Client, ...rest } = props
   const UpdateColumnsToFilter = (columns) => {
     setColumnsToFilter(columns)
   }
   const UpdateFilterValue = (value) => {
     setFilterValue(value)
+  }
+  const refreshGrid = () => {
+    Client(uri, entity, columns, callstandard, page, pageSize, columnsToFilter, filterValue, defaultfilter)
   }
   let newColumns = []
   if (renderRowSubComponent) {
@@ -190,19 +210,12 @@ function Table(props) {
           // The cell can use the individual row's getToggleRowSelectedProps method
           // to the render a checkbox
           Cell: ({ row }) => (
-            <Grid
-              container
-              direction="row"
-              justify="space-between"
-              alignItems="center"
-            >
-              <Grid item xs={2} sm={2} md={2} lg={2} xl={2}>
+            <div>
+              <Grid container alignItems="center" className={classes.root}>
                 <IndeterminateCheckbox color='default' {...row.getToggleRowSelectedProps()} />
+                {actions ? actions(row.original, refreshGrid) : null}
               </Grid>
-              <Grid item xs={8} sm={8} md={8} lg={8} xl={8}>
-                {actions ? actions(row.original) : null}
-              </Grid>
-            </Grid>
+            </div>
           ),
         },
         ...columns,
@@ -212,52 +225,61 @@ function Table(props) {
   // Render the UI for your table
   return (
     <React.Fragment>
-      <Toolbar
-        {...props}
-        rowsSelected={selectedFlatRows}
-        title={title}
-        columns={columnsExtracted}
-        Client={Client}
-        columnsToFilter={columnstoFilter}
-        UpdateFilterValue={UpdateFilterValue}
-        UpdateColumnsToFilter={UpdateColumnsToFilter}
-        allColumns={allColumns}
-        getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
-        toolbarActions={toolbarActions ? toolbarActions : null}
-        hiddenColumns={hiddenColumns}
-      />
+      {toolbar ?
+        <Toolbar
+          {...props}
+          rowsSelected={selectedFlatRows}
+          title={title}
+          columns={columnsExtracted}
+          Client={Client}
+          columnsToFilter={columnstoFilter}
+          UpdateFilterValue={UpdateFilterValue}
+          UpdateColumnsToFilter={UpdateColumnsToFilter}
+          allColumns={allColumns}
+          getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
+          toolbarActions={toolbarActions ? toolbarActions : null}
+          hiddenColumns={hiddenColumns}
+        />
+        : null}
       <TableContainer className={classes.container}>
         <MaUTable size="small" stickyHeader {...getTableProps()} className={classes.table}>
           <TableHead>
             {headerGroups.map(headerGroup => (
               <TableRow {...headerGroup.getHeaderGroupProps()}>
                 {headerGroup.headers.map(column => (
-                  <TableCell {...column.getHeaderProps()}>
-                    <Grid
-                      container
-                      direction="row"
-                      justify="space-between"
-                      alignItems="center"
-                    >
-                      <Grid item xs={11} sm={11} md={11} lg={11} xl={11}>
-                        <Typography variant={'h6'}>
-                          {column.render('Header')}
-                        </Typography>
+                  column.id === 'expander' ?
+                    <TableCell {...column.getHeaderProps()} style={{ width: 10 }}>
+                      <Typography variant={'subtitle1'}>
+                        {column.render('Header')}
+                      </Typography>
+                    </TableCell>
+                    :
+                    <TableCell {...column.getHeaderProps()}>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="space-between"
+                        alignItems="center"
+                      >
+                        <Grid item xs={11} sm={11} md={11} lg={11} xl={11}>
+                          <Typography variant={'subtitle1'}>
+                            {column.render('Header')}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={1} sm={1} md={1} lg={1} xl={1} {...column.getHeaderProps(column.getSortByToggleProps())}>
+                          {column.canSort ?
+                            column.isSorted ?
+                              column.isSortedDesc ?
+                                <KeyboardArrowDownIcon />
+                                : <ExpandLessIcon />
+                              : <SortIcon />
+                            : null}
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                          {column.canFilter ? column.render('Filter') : null}
+                        </Grid>
                       </Grid>
-                      <Grid item xs={1} sm={1} md={1} lg={1} xl={1} {...column.getHeaderProps(column.getSortByToggleProps())}>
-                        {column.canSort ?
-                          column.isSorted ?
-                            column.isSortedDesc ?
-                              <KeyboardArrowDownIcon />
-                              : <ExpandLessIcon />
-                            : <SortIcon />
-                          : null}
-                      </Grid>
-                      <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                        {column.canFilter ? column.render('Filter') : null}
-                      </Grid>
-                    </Grid>
-                  </TableCell>
+                    </TableCell>
                 ))}
               </TableRow>
             ))}
@@ -305,6 +327,7 @@ function Table(props) {
 }
 
 function App(props) {
+  console.log(props);
   return (
     <div>
       <Table {...props} />

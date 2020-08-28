@@ -69,7 +69,7 @@ class MasterDetail extends React.Component {
     }
     render() {
         if (this.state.data === null) {
-            return <Progress />
+            return <Progress color='inherit' />
         } else {
             return (
                 <React.Fragment>
@@ -77,6 +77,7 @@ class MasterDetail extends React.Component {
                         <CardContent>
                             <Table
                                 {...this.state}
+                                toolbar={this.props.toolbar}
                                 Client={this.Call}
                                 columns={this.props.columns}
                                 renderRowSubComponent={this.props.detailcomponent}

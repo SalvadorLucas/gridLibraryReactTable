@@ -67,9 +67,13 @@ const MasterTable = React.forwardRef((props, ref) => {
             <IconButton title={'Button'} onClick={() => alert(selection)} color={'inherit'}><AddIcon /></IconButton>
         )
     }
-    const Actions = (row) => {
+    const Actions = (row, refresh) => {
+        const handleClick = () =>{
+            alert(row.id)
+            refresh()
+        }
         return (
-            <IconButton onClick={() => alert(row.id)} color='primary'><DeleteIcon /></IconButton>
+            <IconButton size='small' onClick={handleClick} color='primary'><DeleteIcon /></IconButton>
         )
     }
     const TableDetail = (row) => {
@@ -80,6 +84,7 @@ const MasterTable = React.forwardRef((props, ref) => {
     return (
         <React.Fragment>
             <MasterDetail
+                toolbar={true}
                 toolbaractions={AddButton}
                 columns={columns}
                 // uri={'http://localhost:8000/api/tenant/1/workflow/3/node/4'}
@@ -90,7 +95,6 @@ const MasterTable = React.forwardRef((props, ref) => {
                 title='Request'
                 callstandard='graphql'
                 detailcomponent={TableDetail}
-                // defaultfilter={[{ mod: "LK", col: "name", val: "Seed" }]}
             />
         </React.Fragment>
     )

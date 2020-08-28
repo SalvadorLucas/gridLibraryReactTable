@@ -30,7 +30,6 @@ const useStyles = makeStyles((theme) => ({
  @param ref: reference made by React.forward
 */
 const PaginationOrganism = React.forwardRef((props, ref) => {
-  console.log(props);
   // Properties of the organism
   const { Client, uri, entity, columns, callstandard, defaultfilter, columnsToFilter, page, filterValue, ...rest } = props
   const [pageSize, setPageSize] = React.useState(10)

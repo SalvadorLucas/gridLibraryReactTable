@@ -29,6 +29,7 @@ import SettingsIcon from '@material-ui/icons/Settings'
 import SearchIcon from '@material-ui/icons/Search'
 import MoreIcon from '@material-ui/icons/MoreVert'
 import CloudDownloadIcon from '@material-ui/icons/CloudDownload'
+import RefreshIcon from '@material-ui/icons/Refresh'
 // STYLES
 import { fade, makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles((theme) => ({
@@ -126,7 +127,7 @@ const MenuProps = {
  @param ref: reference made by React.forward
 */
 const ToolBarOrganism = React.forwardRef((props, ref) => {
-  const { uri, entity, title, columns, pageSize, columnsToFilter, Client, rowsSelected, hiddenColumns,
+  const { uri, entity, title, columns, page, pageSize, columnsToFilter, filterValue, Client, rowsSelected, hiddenColumns,
     callstandard, defaultfilter, UpdateFilterValue, UpdateColumnsToFilter, Removecolumnstofilter, toolbarActions, data, ...rest } = props
   const classes = useStyles()
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -144,6 +145,9 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
     setsearchvalue('')
     UpdateColumnsToFilter([])
     Client(uri, entity, columns, callstandard, 1, pageSize, [], null, defaultfilter)
+  }
+  const refreshGrid = () => {
+    Client(uri, entity, columns, callstandard, page, pageSize, columnsToFilter, filterValue, defaultfilter)
   }
   const handleSettingsMenuOpen = (event) => {
     setAnchorEl(event.currentTarget)
@@ -245,7 +249,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
           </Badge>
         </IconButton>
         <p>Messages</p> */}
-        {toolbarActions(rowsSelected)}
+        {toolbarActions(rowsSelected, refreshGrid)}
         <p>More...</p>
       </MenuItem> : null}
     </Menu>
@@ -326,16 +330,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
             </FormControl>
           </div>
           <div className={classes.sectionDesktop}>
-            {/* <IconButton aria-label="show 4 new mails" color="inherit">
-            <Badge badgeContent={4} color="secondary">
-              <MailIcon />
-            </Badge>
-          </IconButton> */}
-            {/* <IconButton aria-label="show 17 new notifications" color="inherit"> */}
-            {/* <Badge badgeContent={17} color="secondary"> */}
-            {toolbarActions ? toolbarActions(rowsSelected) : null}
-            {/* </Badge> */}
-            {/* </IconButton> */}
+            {toolbarActions ? toolbarActions(rowsSelected, refreshGrid) : null}
             <IconButton
               onClick={csvExport}
               color='inherit'

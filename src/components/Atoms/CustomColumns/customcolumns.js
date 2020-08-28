@@ -27,20 +27,6 @@ const MenuProps = {
   },
 }
 
-const IndeterminateCheckbox = React.forwardRef(
-  (props, ref) => {
-    const { indeterminate, ...rest } = props
-    const defaultRef = React.useRef()
-    const resolvedRef = ref || defaultRef
-
-    React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate
-    }, [resolvedRef, indeterminate])
-
-    return (<Checkbox ref={resolvedRef} {...rest} />)
-  }
-)
-
 //MAIN FUNCTION
 /*
  @param props: component properties
@@ -70,10 +56,6 @@ const CustomColumnsAtom = React.forwardRef((props, ref) => {
         renderValue={(selected) => `Custom`}
         MenuProps={MenuProps}
       >
-        {/* <MenuItem>
-          <IndeterminateCheckbox color="primary" {...getToggleHideAllColumnsProps()} />
-          <ListItemText primary={'Toggle All'} />
-        </MenuItem> */}
         {allColumns.map(column => (
           column.hidden != true ?
             <MenuItem key={column.id} value={column.id}>

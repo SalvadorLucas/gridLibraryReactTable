@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 // CORE COMPONENTS
-import { Grid } from '@material-ui/core'
 import Pagination from '@material-ui/lab/Pagination'
 // STYLES
 import { makeStyles } from '@material-ui/core/styles'
@@ -21,44 +20,32 @@ const useStyles = makeStyles((theme) => ({
 const PaginationMolecule = React.forwardRef((props, ref) => {
   const classes = useStyles()
   // Properties of the molecule
-  const { uri, pages, page, pageSize, entity, columns, callStandard, GetData, ...rest } = props
-  const [currentPage, setCurrentPage] = React.useState(page)
+  const { Client, uri, entity, columns, callstandard, page, pageSize, columnsToFilter, filterValue, pages, defaultfilter, ...rest } = props
   const handleChange = (event, value) => {
-    setCurrentPage(value)
-    GetData(uri, entity, columns, callStandard, value, pageSize)
+    Client(uri, entity, columns, callstandard, value, pageSize, columnsToFilter, filterValue, defaultfilter)
   }
   return (
     /* 
      @prop data-testid: Id to use inside pagination.test.js file.
      */
-    <Grid
-      container
-      ref={ref}
-      direction='row'
-      justify="flex-end"
-      alignItems='flex-start'
+    <div
+      classes={classes.root}
       data-testid={'PaginationTestId'}
+      ref={ref}
     >
-      <Grid item xs={'auto'} sm={'auto'} md={'auto'} lg={'auto'} xl={'auto'}>
-        <div
-          classes={classes.root}
-        >
-          <Pagination
-            // color="primary"
-            count={pages}
-            page={currentPage}
-            onChange={handleChange}
-            showFirstButton
-            showLastButton
-          />
-        </div>
-      </Grid>
-    </Grid>
+      <Pagination
+        count={pages}
+        page={page}
+        onChange={handleChange}
+        showFirstButton
+        showLastButton
+      />
+    </div>
   )
 })
 // Type and required properties
 PaginationMolecule.propTypes = {
-  GetData: PropTypes.func.isRequired,
+  Client: PropTypes.func.isRequired,
   page: PropTypes.number,
   pages: PropTypes.number,
   entity: PropTypes.string.isRequired,

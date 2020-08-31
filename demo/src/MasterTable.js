@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-    IconButton, Link
+    IconButton, Grid
 } from '@material-ui/core'
 import MasterDetail from '../../src'
 import DetailTable from './TableDetail'
@@ -68,12 +68,19 @@ const MasterTable = React.forwardRef((props, ref) => {
         )
     }
     const Actions = (row, refresh) => {
-        const handleClick = () =>{
+        const handleClick = () => {
             alert(row.id)
             refresh()
         }
         return (
-            <IconButton size='small' onClick={handleClick} color='primary'><DeleteIcon /></IconButton>
+            <Grid container>
+                <Grid item>
+                    <IconButton size='small' onClick={handleClick} color='primary'><DeleteIcon /></IconButton>
+                </Grid>
+                <Grid item>
+                    <IconButton size='small' onClick={handleClick} color='primary'><DeleteIcon /></IconButton>
+                </Grid>
+            </Grid>
         )
     }
     const TableDetail = (row) => {

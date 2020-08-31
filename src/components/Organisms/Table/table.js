@@ -97,21 +97,19 @@ const fuzzyTextFilterFn = (rows, id, filterValue) => {
 fuzzyTextFilterFn.autoRemove = val => !val
 
 function Table(props) {
-  console.log(props);
   const classes = useStyles()
   const [columnstoFilter, setColumnsToFilter] = React.useState([])
   const [filterValue, setFilterValue] = React.useState(null)
-  const { toolbar, data, uri, entity, title, UpdateRowsSelected, toolbarActions, actions, renderRowSubComponent, Client, ...rest } = props
+  const { toolbar, data, uri, entity, title, UpdateRowsSelected, page, pageSize, defaultfilter,
+    toolbarActions, actions, renderRowSubComponent, Client, callstandard, ...rest } = props
+  let newColumns = []
+    
   const UpdateColumnsToFilter = (columns) => {
     setColumnsToFilter(columns)
   }
   const UpdateFilterValue = (value) => {
     setFilterValue(value)
   }
-  const refreshGrid = () => {
-    Client(uri, entity, columns, callstandard, page, pageSize, columnsToFilter, filterValue, defaultfilter)
-  }
-  let newColumns = []
   if (renderRowSubComponent) {
     newColumns.push(
       {
@@ -134,6 +132,9 @@ function Table(props) {
   props.columns.map(column => {
     newColumns.push(column)
   })
+  const refreshGrid = () => {
+    Client(uri, entity, newColumns, callstandard, page, pageSize, props.columnsToFilter, filterValue, defaultfilter)
+  }
   let hiddenColumns = []
   let columnsExtracted = extractColumns(props.columns)
   // Prepare hidden columns
@@ -210,12 +211,20 @@ function Table(props) {
           // The cell can use the individual row's getToggleRowSelectedProps method
           // to the render a checkbox
           Cell: ({ row }) => (
-            <div>
-              <Grid container alignItems="center" className={classes.root}>
-                <IndeterminateCheckbox color='default' {...row.getToggleRowSelectedProps()} />
-                {actions ? actions(row.original, refreshGrid) : null}
+            <React.Fragment>
+              <Grid container
+                direction="row"
+                justify="space-between"
+                alignItems="center"
+              >
+                <Grid item xs={2} sm={2} md={2} lg={2} xl={2}>
+                  <IndeterminateCheckbox color='default' {...row.getToggleRowSelectedProps()} />
+                </Grid>
+                <Grid item xs={9} sm={9} md={9} lg={9} xl={9}>
+                  {actions ? actions(row.original, refreshGrid) : null}
+                </Grid>
               </Grid>
-            </div>
+            </React.Fragment>
           ),
         },
         ...columns,
@@ -327,7 +336,6 @@ function Table(props) {
 }
 
 function App(props) {
-  console.log(props);
   return (
     <div>
       <Table {...props} />

@@ -62,7 +62,7 @@ const MasterTable = React.forwardRef((props, ref) => {
         // { Header: 'workflow', accessor: 'workflow' },
         // { Header: 'workflowinstance_id', accessor: 'workflowinstance_id' },
     ]
-    const AddButton = (selection) => {
+    const AddButton = (selection, refresh) => {
         return (
             <IconButton title={'Button'} onClick={() => alert(selection)} color={'inherit'}><AddIcon /></IconButton>
         )
@@ -100,7 +100,7 @@ const MasterTable = React.forwardRef((props, ref) => {
                 id='id'
                 actions={Actions}
                 title='Request'
-                callstandard='graphql'
+                callstandard='graphql'//brapi
                 detailcomponent={TableDetail}
             />
         </React.Fragment>

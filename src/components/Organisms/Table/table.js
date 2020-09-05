@@ -195,8 +195,8 @@ function Table(props) {
   },
     useFilters, // useFilters!
     useSortBy,
-    useRowSelect, // useRowSelect!
     useExpanded, // We can useExpanded to track the expanded state
+    useRowSelect, // useRowSelect!
     // for sub components too!
     hooks => {
       hooks.visibleColumns.push(columns => [

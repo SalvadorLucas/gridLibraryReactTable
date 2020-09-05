@@ -3,28 +3,18 @@ import MasterDetail from '../../src'
 
 const TableDetail = React.forwardRef((props, ref) => {
     const columns = [
-        {
-            Header: 'Id',
-            accessor: 'id',
-            hidden: true
-        },
-        {
-            Header: 'Name',
-            accessor: 'name',
-            filter: true,
-        },
-        {
-            Header: 'Code',
-            accessor: 'code',
-            filter: true,
-        }
+        { Header: 'id', accessor: 'id', hidden: true },
+        { Header: 'Title', accessor: 'title', filter: true },
+        { Header: 'Name', accessor: 'name', filter: true },
+        { Header: 'Description', accessor: 'description', filter: true },
+        { Header: 'Help', accessor: 'help', filter: true },
     ]
     return (
         <MasterDetail
-            toolbar={false}
+            toolbar={true}
             columns={columns}
             uri='http://localhost:18080/graphql'
-            entity='Service'
+            entity='Workflow'
             id='id'
             title='Request'
             callstandard='graphql'

@@ -166,7 +166,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
     setMobileMoreAnchorEl(event.currentTarget)
   }
   const handleFilter = () => {
-    Client(uri, entity, columns, callstandard, 1, pageSize, columnsToFilter, searchvalue)
+    Client(uri, entity, columns, callstandard, 1, pageSize, columnsToFilter, searchvalue, defaultfilter)
   }
   const handleChange = (event) => {
     setsearchvalue(event.target.value)

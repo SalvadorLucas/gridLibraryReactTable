@@ -56,6 +56,7 @@ const PaginationOrganism = React.forwardRef((props, ref) => {
       alignItems='center'
       data-testid={'PaginationTestId'}
       spacing={1}
+      ref={ref}
     >
       <Grid item xs={'auto'} sm={'auto'} md={'auto'} lg={'auto'} xl={'auto'}>
         <Typography variant='subtitle2'>Go to page:</Typography>

@@ -30,13 +30,13 @@ class MasterDetail extends React.Component {
             callstandard: this.props.callstandard,
             toolbarActions: this.props.toolbaractions,
             columnsToFilter: [],
-            filterValue: null
+            filterValue: null,
+            columns: extractColumns(this.props.columns)
         }
-        this.columns = extractColumns(this.props.columns)
         this.Call = this.Call.bind(this)
     }
     componentDidMount() {
-        Client(this.state.uri, this.state.entity, this.columns, this.state.callstandard, this.state.page, this.state.pageSize, this.state.columnsToFilter, this.state.filterValue, this.state.defaultfilter)
+        Client(this.state.uri, this.state.entity, this.state.columns, this.state.callstandard, this.state.page, this.state.pageSize, this.state.columnsToFilter, this.state.filterValue, this.state.defaultfilter)
             .then(response => {
                 this.setState({
                     data: response.data,
@@ -79,7 +79,7 @@ class MasterDetail extends React.Component {
                                 {...this.state}
                                 toolbar={this.props.toolbar}
                                 Client={this.Call}
-                                columns={this.props.columns}
+                                originalColumns={this.props.columns}
                                 renderRowSubComponent={this.props.detailcomponent}
                             />
                         </CardContent>
@@ -87,7 +87,6 @@ class MasterDetail extends React.Component {
                             <Pagination
                                 {...this.state}
                                 Client={this.Call}
-                                columns={this.columns}
                             />
                         </CardActions>
                     </Card>

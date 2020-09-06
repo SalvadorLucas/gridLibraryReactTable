@@ -7,8 +7,8 @@ import WF from './wf'
 class Demo extends Component {
   render() {
     return <div>
-      {/* <MasterTable /> */}
-      <TableDetail/>
+      <MasterTable />
+      {/* <TableDetail/> */}
       {/* <WF/> */}
     </div>
   }

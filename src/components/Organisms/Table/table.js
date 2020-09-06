@@ -103,12 +103,31 @@ function Table(props) {
   const { toolbar, data, uri, entity, title, UpdateRowsSelected, page, pageSize, defaultfilter,
     toolbarActions, actions, renderRowSubComponent, Client, callstandard, ...rest } = props
   let newColumns = []
-    
+
   const UpdateColumnsToFilter = (columns) => {
     setColumnsToFilter(columns)
   }
   const UpdateFilterValue = (value) => {
     setFilterValue(value)
+  }
+  // Function to refresh grid for developers
+  function refreshGrid() {
+    Client(uri, entity, props.columns, callstandard, page, pageSize, props.columnsToFilter, filterValue, defaultfilter)
+  }
+  if (actions) {
+    newColumns.push(
+      {
+        // Make an actions cell
+        Header: () => null, // No header
+        id: 'actions', // It needs an ID
+        Cell: ({ row }) => (
+          // Use Cell to render actions for each row.
+          <React.Fragment>
+            {actions(row.original, refreshGrid)}
+          </React.Fragment>
+        ),
+      }
+    )
   }
   if (renderRowSubComponent) {
     newColumns.push(
@@ -129,16 +148,12 @@ function Table(props) {
       }
     )
   }
-  props.columns.map(column => {
+  props.originalColumns.map(column => {
     newColumns.push(column)
   })
-  const refreshGrid = () => {
-    Client(uri, entity, newColumns, callstandard, page, pageSize, props.columnsToFilter, filterValue, defaultfilter)
-  }
   let hiddenColumns = []
-  let columnsExtracted = extractColumns(props.columns)
   // Prepare hidden columns
-  columnsExtracted.map(column => {
+  props.columns.map(column => {
     column.hidden ? hiddenColumns.push(column.accessor)
       : null
   })
@@ -202,7 +217,7 @@ function Table(props) {
       hooks.visibleColumns.push(columns => [
         // Let's make a column for selection
         {
-          id: 'actions',
+          id: 'selectable',
           // The header can use the table's getToggleAllRowsSelectedProps method
           // to render a checkbox
           Header: ({ getToggleAllRowsSelectedProps }) => (
@@ -211,20 +226,7 @@ function Table(props) {
           // The cell can use the individual row's getToggleRowSelectedProps method
           // to the render a checkbox
           Cell: ({ row }) => (
-            <React.Fragment>
-              <Grid container
-                direction="row"
-                justify="space-between"
-                alignItems="center"
-              >
-                <Grid item xs={2} sm={2} md={2} lg={2} xl={2}>
-                  <IndeterminateCheckbox color='default' {...row.getToggleRowSelectedProps()} />
-                </Grid>
-                <Grid item xs={9} sm={9} md={9} lg={9} xl={9}>
-                  {actions ? actions(row.original, refreshGrid) : null}
-                </Grid>
-              </Grid>
-            </React.Fragment>
+            <IndeterminateCheckbox color='default' {...row.getToggleRowSelectedProps()} />
           ),
         },
         ...columns,
@@ -239,7 +241,7 @@ function Table(props) {
           {...props}
           rowsSelected={selectedFlatRows}
           title={title}
-          columns={columnsExtracted}
+          columns={props.columns}
           Client={Client}
           columnsToFilter={columnstoFilter}
           UpdateFilterValue={UpdateFilterValue}

@@ -14,10 +14,9 @@ export function extractColumns(headers) {
 
 export default async function Client(uri, entity, columns, callStandard, page, pageSize, columnsToFilter, value, defaultFilter) {
     return new Promise((resolve, reject) => {
-        let columnsExtracted = extractColumns(columns)
         switch (callStandard.toLowerCase()) {
             case 'brapi':
-                ClientAxios(uri, entity, columnsExtracted, page, pageSize, columnsToFilter, value, defaultFilter)
+                ClientAxios(uri, entity, columns, page, pageSize, columnsToFilter, value, defaultFilter)
                     .then(response => {
                         resolve(response)
                     })
@@ -26,7 +25,7 @@ export default async function Client(uri, entity, columns, callStandard, page, p
                     })
                 break
             case 'graphql':
-                ClientGraphQL(uri, entity, columnsExtracted, page, pageSize, columnsToFilter, value, defaultFilter)
+                ClientGraphQL(uri, entity, columns, page, pageSize, columnsToFilter, value, defaultFilter)
                     .then(response => {
                         resolve(response)
                     })

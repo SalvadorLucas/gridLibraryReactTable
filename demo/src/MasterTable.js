@@ -96,7 +96,7 @@ const MasterTable = React.forwardRef((props, ref) => {
                 columns={columns}
                 // uri={'http://localhost:8000/api/tenant/1/workflow/3/node/4'}
                 uri='http://localhost:18080/graphql'
-                entity='Service'
+                entity='service'
                 id='id'
                 actions={Actions}
                 title='Request'

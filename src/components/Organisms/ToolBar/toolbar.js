@@ -33,14 +33,8 @@ import RefreshIcon from '@material-ui/icons/Refresh'
 // STYLES
 import { fade, makeStyles } from '@material-ui/core/styles'
 const useStyles = makeStyles((theme) => ({
-  appBar: {
-    background: '#4d4d4d'
-  },
   grow: {
     flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
   },
   title: {
     display: 'none',
@@ -259,7 +253,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
      @prop data-testid: Id to use inside toolbar.test.js file.
      */
     <div className={classes.grow}>
-      <AppBar position="static" data-testid={'ToolbarTestId'} className={classes.appBar}>
+      <AppBar position="static" data-testid={'ToolbarTestId'}>
         <Toolbar>
           <Typography className={classes.title} variant="h6" noWrap>
             {title}

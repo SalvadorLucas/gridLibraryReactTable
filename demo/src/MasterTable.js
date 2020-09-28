@@ -42,7 +42,7 @@ const MasterTable = React.forwardRef((props, ref) => {
         // { Header: 'RM_Service', accessor: 'RM_Service' },
         // { Header: 'RM_ServiceProvider', accessor: 'RM_ServiceProvider' },
         // { Header: 'RM_ServiceType', accessor: 'RM_ServiceType' },
-        { Header: 'admin_contact', accessor: 'admin_contact' },
+        { Header: 'User Name', accessor: 'userName' },
         { Header: 'charge_account', accessor: 'charge_account' },
         { Header: 'creation_timestamp', accessor: 'creation_timestamp' },
         // { Header: 'creator_id', accessor: 'creator_id' },
@@ -64,7 +64,7 @@ const MasterTable = React.forwardRef((props, ref) => {
     ]
     const AddButton = (selection, refresh) => {
         return (
-            <IconButton title={'Button'} onClick={() => {alert(selection); refresh();}} color={'inherit'}><AddIcon /></IconButton>
+            <IconButton title={'Button'} onClick={() => {alert(selection) refresh()}} color={'inherit'}><AddIcon /></IconButton>
         )
     }
     const Actions = (row, refresh) => {
@@ -96,7 +96,7 @@ const MasterTable = React.forwardRef((props, ref) => {
                 columns={columns}
                 // uri={'http://localhost:8000/api/tenant/1/workflow/3/node/4'}
                 uri='http://localhost:18080/graphql'
-                entity='service'
+                entity='Service'
                 id='id'
                 actions={Actions}
                 title='Request'

@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 // CORE COMPONENTS
-import SvgIcon from '@material-ui/core/SvgIcon';
+import SvgIcon from '@material-ui/core/SvgIcon'
 
 //MAIN FUNCTION
 /*

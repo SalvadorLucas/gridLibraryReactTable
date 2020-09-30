@@ -9,6 +9,50 @@ import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
     @value String with value to filter on every column selected
     @defaultFilter Array with filters by default
 */
+
+const prepareFilters = (value, columnsToFilter, defaultFilter, columns) => {
+  //case 1: default filters
+  if (defaultFilter) {
+    return `filters: [
+      ${defaultFilter.map((filter) => {
+        return `{mod: ${filter.mod} col: "${filter.col}" val: "${filter.val}"}`;
+      })}
+      ${
+        value && // user insert a value to search?
+        columnsToFilter.length > 0 // user select a specific column to filter?
+          ? columnsToFilter.map((column) => {
+              return `{mod: LK col: "${column}" val: "${value}"}`;
+            })
+          : columns.map((column) => {
+              // user didn't select a specific column to filter
+              return column.filter
+                ? `{mod: LK col:"${column.accessor}" val: "${value}"}`
+                : ``;
+            })
+      }
+    ]`;
+  } else if (value) {
+    //case 2: value to search
+    return `filters:[
+      ${
+        columnsToFilter.length > 0 //user select a specific column to filter?
+          ? columnsToFilter.map((column) => {
+              return `{mod: LK col: "${column}" val: "${value}"}`;
+            })
+          : columns.map((column) => {
+              // user didn't select a specific column to filter
+              return column.filter
+                ? `{mod: LK col:"${column.accessor}" val: "${value}"}`
+                : ``;
+            })
+      }
+    ]`;
+  } else {
+    //case 3: not filters
+    return ``;
+  }
+};
+
 export const ClientGraphQL = (
   uri,
   entity,
@@ -37,23 +81,7 @@ export const ClientGraphQL = (
           {
             find${entity}List(
               page:{ number: ${page} size: ${pageSize}}
-              
-              ${
-                columnsToFilter || defaultFilter
-                  ? `filters:[
-                ${
-                  defaultFilter
-                    ? defaultFilter.map((filter) => {
-                        return `{mod: ${filter.mod} col: "${filter.col}" val: "${filter.val}"}`;
-                      })
-                    : ""
-                }
-                ${columnsToFilter.map((column) => {
-                  return `{mod: LK col: "${column}" val: "${value}"}`;
-                })}
-              ]`
-                  : ""
-              }
+              ${prepareFilters(value, columnsToFilter, defaultFilter, columns)}
               ){
               totalElements
               totalPages

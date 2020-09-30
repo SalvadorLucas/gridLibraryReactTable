@@ -64,7 +64,7 @@ const MasterTable = React.forwardRef((props, ref) => {
     ]
     const AddButton = (selection, refresh) => {
         return (
-            <IconButton title={'Button'} onClick={() => {alert(selection) refresh()}} color={'inherit'}><AddIcon /></IconButton>
+            <IconButton title={'Button'} onClick={() => {alert(selection); refresh()}} color={'inherit'}><AddIcon /></IconButton>
         )
     }
     const Actions = (row, refresh) => {

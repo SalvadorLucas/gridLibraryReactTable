@@ -13,12 +13,13 @@ import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 const prepareFilters = (value, columnsToFilter, defaultFilter, columns) => {
   //case 1: default filters
   if (defaultFilter) {
-    return `filters: [
+    let filters = `filters: [
       ${defaultFilter.map((filter) => {
         return `{mod: ${filter.mod} col: "${filter.col}" val: "${filter.val}"}`;
-      })}
+      })}`;
+    if (value) {
+      filters += `
       ${
-        value && // user insert a value to search?
         columnsToFilter.length > 0 // user select a specific column to filter?
           ? columnsToFilter.map((column) => {
               return `{mod: LK col: "${column}" val: "${value}"}`;
@@ -29,8 +30,10 @@ const prepareFilters = (value, columnsToFilter, defaultFilter, columns) => {
                 ? `{mod: LK col:"${column.accessor}" val: "${value}"}`
                 : ``;
             })
-      }
-    ]`;
+      }`;
+    }
+    filters += `]`;
+    return filters;
   } else if (value) {
     //case 2: value to search
     return `filters:[

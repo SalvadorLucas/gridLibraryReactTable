@@ -1,10 +1,10 @@
 import React from "react";
-import { IconButton, Grid } from "@material-ui/core";
+import { IconButton, Grid, MenuItem } from "@material-ui/core";
 import MasterDetail from "../../src";
 import DetailTable from "./TableDetail";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
-
+import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 // This is a custom filter UI for selecting
 // a unique option from a list
 function SelectColumnFilter({
@@ -17,7 +17,7 @@ function SelectColumnFilter({
     preFilteredRows.forEach((row) => {
       options.push(row.values[id]);
     });
-    return ([...options]);
+    return [...options];
   }, [id, preFilteredRows]);
   // Render a multi-select box
   return (
@@ -144,7 +144,6 @@ const MasterTable = React.forwardRef((props, ref) => {
         {
           Header: "Name",
           accessor: "name",
-          filter: true, //used by Global Filter
           Filter: SelectColumnFilter,
           filter: "includes",
         },
@@ -225,6 +224,18 @@ const MasterTable = React.forwardRef((props, ref) => {
   const TableDetail = (row) => {
     return <DetailTable />;
   };
+
+  const toolbarMobileActions = (selection, refresh) => {
+    return (
+      <MenuItem onClick={() => alert(selection)}>
+        <IconButton color={"inherit"}>
+          <AddIcon />
+        </IconButton>
+        <p>Add</p>
+      </MenuItem>
+    );
+  };
+
   return (
     <React.Fragment>
       <MasterDetail
@@ -240,7 +251,8 @@ const MasterTable = React.forwardRef((props, ref) => {
         callstandard="graphql" //brapi
         defaultfilter={[{ mod: "LK", col: "name", val: "Seed" }]}
         // detailcomponent={TableDetail}
-        select="multiple"
+        select="multi"
+        toolbarMobileActions={toolbarMobileActions}
       />
     </React.Fragment>
   );

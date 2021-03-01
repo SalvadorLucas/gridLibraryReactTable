@@ -85,7 +85,7 @@ const GlobalFilterMolecule = React.forwardRef((props, ref) => {
 })
 // Type and required properties
 GlobalFilterMolecule.propTypes = {
-  columns: PropTypes.array.isRequired,
+  columns: PropTypes.array,
   UpdateColumnsToFilter: PropTypes.func.isRequired,
   clean: PropTypes.bool
 }

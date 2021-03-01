@@ -7,10 +7,8 @@ import {
   IconButton,
   Typography,
   InputBase,
-  TextField,
   Menu,
   MenuItem,
-  Icon,
   Input,
   FormControl,
   ListItemText,
@@ -20,7 +18,6 @@ import {
 } from "@material-ui/core";
 // OTHER COMPONENTS
 import CustomColumns from "../../Atoms/CustomColumns";
-import GlobalFilter from "../../Molecules/GlobalFilter";
 import FilterICon from "../../Atoms/Icons/addFilter";
 import RemoveFilterICon from "../../Atoms/Icons/removeFilter";
 import CSVExport from "../../../functions/csv";
@@ -29,7 +26,6 @@ import SettingsIcon from "@material-ui/icons/Settings";
 import SearchIcon from "@material-ui/icons/Search";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
-import RefreshIcon from "@material-ui/icons/Refresh";
 // STYLES
 import { fade, makeStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles((theme) => ({
@@ -139,10 +135,11 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
     UpdateColumnsToFilter,
     Removecolumnstofilter,
     toolbarActions,
+    toolbarMobileActions,
     data,
     ...rest
   } = props;
-  const searchInputRef = React.useRef(null)
+  const searchInputRef = React.useRef(null);
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -155,34 +152,39 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
     setSelection(event.target.value);
   };
   const handleClearFilter = () => {
-    searchInputRef.current.value = ""
+    searchInputRef.current.value = "";
     setSelection([]);
     setsearchvalue("");
+    UpdateFilterValue(null);
     UpdateColumnsToFilter([]);
-    Client(
-      uri,
-      entity,
-      columns,
-      callstandard,
-      1,
-      pageSize,
-      [],
-      null,
-      defaultfilter
-    );
+    uri
+      ? Client(
+          uri,
+          entity,
+          columns,
+          callstandard,
+          1,
+          pageSize,
+          [],
+          null,
+          defaultfilter
+        )
+      : Client(1, pageSize, [], null);
   };
   const refreshGrid = () => {
-    Client(
-      uri,
-      entity,
-      columns,
-      callstandard,
-      page,
-      pageSize,
-      columnsToFilter,
-      filterValue,
-      defaultfilter
-    );
+    uri
+      ? Client(
+          uri,
+          entity,
+          columns,
+          callstandard,
+          page,
+          pageSize,
+          columnsToFilter,
+          filterValue,
+          defaultfilter
+        )
+      : Client(page, pageSize, columnsToFilter, filterValue);
   };
   const handleSettingsMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -200,22 +202,28 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
+
   const handleFilter = () => {
-    Client(
-      uri,
-      entity,
-      columns,
-      callstandard,
-      1,
-      pageSize,
-      columnsToFilter,
-      searchvalue,
-      defaultfilter
-    );
+    UpdateFilterValue(searchvalue);
+    uri
+      ? Client(
+          uri,
+          entity,
+          columns,
+          callstandard,
+          1,
+          pageSize,
+          columnsToFilter,
+          searchvalue,
+          defaultfilter
+        )
+      : Client(1, pageSize, columnsToFilter, searchvalue);
   };
+
   const handleChange = (event) => {
     setsearchvalue(event.target.value);
   };
+
   const csvExport = () => {
     let headers = {};
     let formatData = [];
@@ -238,7 +246,9 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
     // Export Data to CSV
     CSVExport(headers, formatData, `${title.replace(" ", "")}CSV`);
   };
+
   const menuId = "primary-settings-menu";
+
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
@@ -256,7 +266,9 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
       </MenuItem>
     </Menu>
   );
+
   const mobileMenuId = "primary-settings-menu-mobile";
+
   const renderMobileMenu = (
     <Menu
       anchorEl={mobileMoreAnchorEl}
@@ -279,28 +291,12 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
         <p>Settings</p>
       </MenuItem>
       <MenuItem onClick={csvExport}>
-        {/* <IconButton aria-label="show 11 new notifications" color="inherit"> */}
-        {/* <Badge badgeContent={11} color="secondary"> */}
-        {/* <NotificationsIcon   /> */}
-        {/* </Badge> */}
-        {/* </IconButton> */}
         <IconButton color="inherit">
           <CloudDownloadIcon />
         </IconButton>
         <p>Export</p>
       </MenuItem>
-      {toolbarActions ? (
-        <MenuItem>
-          {/* <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p> */}
-          {toolbarActions(rowsSelected, refreshGrid)}
-          <p>More...</p>
-        </MenuItem>
-      ) : null}
+      {toolbarMobileActions && toolbarMobileActions(rowsSelected, refreshGrid)}
     </Menu>
   );
   return (
@@ -355,6 +351,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
                 labelId="demo-mutiple-checkbox-label"
                 id="demo-mutiple-checkbox"
                 multiple
+                variant="standard"
                 value={selection}
                 onChange={handleChangeSelection}
                 input={<Input />}
@@ -421,9 +418,9 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
 });
 // Type and required properties
 ToolBarOrganism.propTypes = {
-  uri: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  columns: PropTypes.array.isRequired,
+  uri: PropTypes.string,
+  title: PropTypes.string,
+  columns: PropTypes.array,
   pagesize: PropTypes.number,
   columnstofilter: PropTypes.array,
   Client: PropTypes.func.isRequired,

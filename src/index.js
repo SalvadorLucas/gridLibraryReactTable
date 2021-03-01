@@ -2,7 +2,6 @@ import React from "react";
 // CLIENT
 import Client from "./Utils/Client";
 // CORE COMPONENTS
-import { Card, CardContent, CardActions } from "@material-ui/core";
 import Progress from "./components/Atoms/Progress";
 import Table from "./components/Organisms/Table";
 // OTHER
@@ -13,48 +12,51 @@ class MasterDetail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: null,
-      page: 1,
-      pageSize: 10,
-      pages: 1,
       error: null,
       actions: this.props.actions,
-      uri: this.props.uri,
       title: this.props.title,
-      entity: this.props.entity,
       defaultfilter: this.props.defaultfilter,
-      callstandard: this.props.callstandard,
       toolbarActions: this.props.toolbaractions,
+      toolbarMobileActions: this.props.toolbarMobileActions,
       columnsToFilter: [],
       filterValue: null,
       columns: extractColumns(this.props.columns),
+      select: this.props.select
     };
     this.Call = this.Call.bind(this);
   }
+
   componentDidMount() {
-    Client(
-      this.state.uri,
-      this.state.entity,
-      this.state.columns,
-      this.state.callstandard,
-      this.state.page,
-      this.state.pageSize,
-      this.state.columnsToFilter,
-      this.state.filterValue,
-      this.state.defaultfilter
-    )
-      .then((response) => {
-        this.setState({
-          data: response.data,
-          pages: response.pages,
+    if (this.props.uri) {
+      Client(
+        this.props.uri,
+        this.props.entity,
+        this.state.columns,
+        this.props.callstandard,
+        1,
+        10,
+        [],
+        null,
+        this.state.defaultfilter
+      )
+        .then((response) => {
+          this.setState({
+            page: 1,
+            uri: this.props.uri,
+            entity: this.props.entity,
+            callstandard: this.props.callstandard,
+            data: response.data,
+            pages: response.pages,
+          });
+        })
+        .catch((error) => {
+          this.setState({
+            error: error,
+          });
         });
-      })
-      .catch((error) => {
-        this.setState({
-          error: error,
-        });
-      });
+    }
   }
+
   Call(
     uri,
     entity,
@@ -93,26 +95,33 @@ class MasterDetail extends React.Component {
         });
       });
   }
+
   render() {
-    if (this.state.data === null) {
+    if (!this.state.data && !this.props.data) {
       return <Progress color="inherit" />;
     } else {
       return (
         <React.Fragment>
-          <Card variant="outlined">
-            <CardContent>
-              <Table
-                {...this.state}
-                toolbar={this.props.toolbar}
-                Client={this.Call}
-                originalColumns={this.props.columns}
-                renderRowSubComponent={this.props.detailcomponent}
-              />
-            </CardContent>
-            <CardActions>
-              <Pagination {...this.state} Client={this.Call} />
-            </CardActions>
-          </Card>
+          {this.props.uri ? (
+            <Table
+              {...this.state}
+              toolbar={this.props.toolbar}
+              Client={this.Call}
+              originalColumns={this.props.columns}
+              renderRowSubComponent={this.props.detailcomponent}
+            />
+          ) : (
+            <Table
+              {...this.state}
+              data={this.props.data}
+              toolbar={this.props.toolbar}
+              Client={this.props.fetch}
+              pages={this.props.totalPages}
+              page={this.props.page}
+              originalColumns={this.props.columns}
+              renderRowSubComponent={this.props.detailcomponent}
+            />
+          )}
         </React.Fragment>
       );
     }

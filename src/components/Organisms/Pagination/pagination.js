@@ -42,38 +42,43 @@ const PaginationOrganism = React.forwardRef((props, ref) => {
     page,
     filterValue,
     pages,
+    pageSize,
+    changePageSize,
     ...rest
   } = props;
-  const [pageSize, setPageSize] = React.useState(10);
-  const [goToPageNumber, setGoToPageNumber] = React.useState(null);
+  const [goToPageNumber, setGoToPageNumber] = React.useState(1);
   const classes = useStyles();
   const handleChange = (event) => {
-    setPageSize(event.target.value);
-    Client(
-      uri,
-      entity,
-      columns,
-      callstandard,
-      1,
-      event.target.value,
-      columnsToFilter,
-      filterValue,
-      defaultfilter
-    );
+    changePageSize(event.target.value);
+    uri
+      ? Client(
+          uri,
+          entity,
+          columns,
+          callstandard,
+          1,
+          event.target.value,
+          columnsToFilter,
+          filterValue,
+          defaultfilter
+        )
+      : Client(1, event.target.value, columnsToFilter, filterValue);
   };
   const handleGoTo = (event) => {
-    event.preventDefault()
-    Client(
-      uri,
-      entity,
-      columns,
-      callstandard,
-      goToPageNumber,
-      pageSize,
-      columnsToFilter,
-      filterValue,
-      defaultfilter
-    );
+    event.preventDefault();
+    uri
+      ? Client(
+          uri,
+          entity,
+          columns,
+          callstandard,
+          goToPageNumber,
+          pageSize,
+          columnsToFilter,
+          filterValue,
+          defaultfilter
+        )
+      : Client(goToPageNumber, pageSize, columnsToFilter, filterValue);
   };
   const onChage = (event) => {
     setGoToPageNumber(Number(event.target.value));

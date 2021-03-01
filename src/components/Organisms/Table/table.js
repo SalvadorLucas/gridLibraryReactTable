@@ -21,7 +21,7 @@ import {
   useExpanded,
   useRowSelect,
 } from "react-table";
-import matchSorter from "match-sorter";
+import { matchSorter } from "match-sorter";
 // Icons
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
@@ -29,6 +29,7 @@ import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import SortIcon from "@material-ui/icons/Sort";
 // OTHER
 import Toolbar from "../ToolBar";
+import Pagination from "../Pagination";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -79,6 +80,8 @@ const DefaultColumnFilter = ({
   return (
     <TextField
       fullWidth
+      size="small"
+      variant="outlined"
       value={filterValue || ""}
       onChange={(e) => {
         setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
@@ -98,6 +101,7 @@ function Table(props) {
   const classes = useStyles();
   const [columnstoFilter, setColumnsToFilter] = React.useState([]);
   const [filterValue, setFilterValue] = React.useState(null);
+  const [pageSize, setPageSize] = React.useState(10);
   const {
     toolbar,
     data,
@@ -106,13 +110,15 @@ function Table(props) {
     title,
     UpdateRowsSelected,
     page,
-    pageSize,
+    pages,
     defaultfilter,
     toolbarActions,
+    toolbarMobileActions,
     actions,
     renderRowSubComponent,
     Client,
     callstandard,
+    select,
     ...rest
   } = props;
 
@@ -128,23 +134,27 @@ function Table(props) {
 
   // Function to refresh grid for developers
   function refreshGrid() {
-    Client(
-      uri,
-      entity,
-      props.columns,
-      callstandard,
-      page,
-      pageSize,
-      props.columnsToFilter,
-      filterValue,
-      defaultfilter
-    );
+    if (uri) {
+      Client({
+        uri,
+        entity,
+        columns: props.columns,
+        callstandard,
+        page,
+        pageSize,
+        columnsToFilter: props.columnsToFilter,
+        filterValue,
+        defaultfilter,
+      });
+    } else {
+      // fetch({ page: {...page}, filters: filters });
+    }
   }
 
   if (actions) {
     newColumns.push({
       // Make an actions cell
-      Header: () => null, // No header
+      Header: () => "Actions", // No header
       id: "actions", // It needs an ID
       Cell: ({ row }) => (
         // Use Cell to render actions for each row.
@@ -174,7 +184,7 @@ function Table(props) {
       ),
     });
   }
-
+  // Format all columns
   props.originalColumns.map((column) => {
     newColumns.push(column);
   });
@@ -185,6 +195,7 @@ function Table(props) {
     column.hidden ? hiddenColumns.push(column.accessor) : null;
   });
 
+  // Prepare all columns
   const columns = React.useMemo(() => newColumns, []);
 
   const filterTypes = React.useMemo(
@@ -215,7 +226,11 @@ function Table(props) {
     []
   );
 
-  // Use the state and functions returned from useTable to build your UI
+  const changePageSize = (newSize) => {
+    setPageSize(newSize);
+  };
+
+  // Use the state and functions returned from useTable to build the UI
   const {
     getTableProps,
     getTableBodyProps,
@@ -249,20 +264,59 @@ function Table(props) {
           id: "selectable",
           // The header can use the table's getToggleAllRowsSelectedProps method
           // to render a checkbox
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <IndeterminateCheckbox
-              color="primary"
-              {...getToggleAllRowsSelectedProps()}
-            />
-          ),
+          Header: ({ getToggleAllRowsSelectedProps }) => {
+            switch (select) {
+              case "multi":
+                return (
+                  <IndeterminateCheckbox
+                    color="primary"
+                    {...getToggleAllRowsSelectedProps()}
+                  />
+                );
+              case "single":
+                return <div />;
+              default:
+                return <div />;
+            }
+          },
           // The cell can use the individual row's getToggleRowSelectedProps method
           // to the render a checkbox
-          Cell: ({ row }) => (
-            <IndeterminateCheckbox
-              color="primary"
-              {...row.getToggleRowSelectedProps()}
-            />
-          ),
+          Cell: ({ row }) => {
+            switch (select) {
+              case "multi":
+                return (
+                  <IndeterminateCheckbox
+                    color="primary"
+                    {...row.getToggleRowSelectedProps()}
+                  />
+                );
+              case "single":
+                if (
+                  rows.filter((row) => row.isSelected).length < 1 ||
+                  row.isSelected
+                ) {
+                  return (
+                    <div>
+                      <IndeterminateCheckbox
+                        {...row.getToggleRowSelectedProps()}
+                      />
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div>
+                      <IndeterminateCheckbox
+                        checked={false}
+                        readOnly
+                        style={row.getToggleRowSelectedProps().style}
+                      />
+                    </div>
+                  );
+                }
+              default:
+                return <div />;
+            }
+          },
         },
         ...columns,
       ]);
@@ -277,7 +331,6 @@ function Table(props) {
           rowsSelected={selectedFlatRows}
           title={title}
           columns={props.columns}
-          Client={Client}
           columnsToFilter={columnstoFilter}
           UpdateFilterValue={UpdateFilterValue}
           UpdateColumnsToFilter={UpdateColumnsToFilter}
@@ -285,11 +338,12 @@ function Table(props) {
           getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
           toolbarActions={toolbarActions ? toolbarActions : null}
           hiddenColumns={hiddenColumns}
+          pageSize={pageSize}
         />
       ) : null}
       <TableContainer className={classes.container}>
         <MaUTable
-          size="small"
+          size={select ? "small" : "medium"}
           stickyHeader
           {...getTableProps()}
           className={classes.table}
@@ -391,6 +445,20 @@ function Table(props) {
           </TableBody>
         </MaUTable>
       </TableContainer>
+      <Pagination
+        Client={Client}
+        uri={uri}
+        entity={entity}
+        columns={columns}
+        callstandard={callstandard}
+        defaultfilter={defaultfilter}
+        columnsToFilter={columnstoFilter}
+        page={page}
+        filterValue={filterValue}
+        pages={pages}
+        pageSize={pageSize}
+        changePageSize={changePageSize}
+      />
     </React.Fragment>
   );
 }

@@ -11,7 +11,6 @@ const ControlledTable = React.forwardRef((props, ref) => {
   const [data, setData] = React.useState(null);
   const [totalPages, setTotalPages] = React.useState(0);
   const [page, setPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(10);
   React.useEffect(() => {
     Client.query({
       query: FIND_SERVICE_LIST,

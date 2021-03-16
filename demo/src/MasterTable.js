@@ -245,7 +245,6 @@ const MasterTable = React.forwardRef((props, ref) => {
         // uri={'http://localhost:8000/api/tenant/1/workflow/3/node/4'}
         uri="http://localhost:18080/graphql"
         entity="Service"
-        id="id"
         actions={Actions}
         title="Request"
         callstandard="graphql" //brapi

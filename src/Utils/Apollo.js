@@ -11,49 +11,53 @@ import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 */
 
 const prepareFilters = (value, columnsToFilter, defaultFilter, columns) => {
-  //case 1: default filters
-  if (defaultFilter) {
-    let filters = `filters: [
-      ${defaultFilter.map((filter) => {
-        return `{mod: ${filter.mod} col: "${filter.col}" val: "${filter.val}"}`;
-      })}`;
-    if (value) {
-      filters += `
-      ${
-        columnsToFilter.length > 0 // user select a specific column to filter?
-          ? columnsToFilter.map((column) => {
-              return `{mod: LK col: "${column}" val: "${value}"}`;
-            })
-          : columns.map((column) => {
-              // user didn't select a specific column to filter
-              return column.filter
-                ? `{mod: LK col:"${column.accessor}" val: "${value}"}`
-                : ``;
-            })
-      }`;
-    }
-    filters += `]`;
-    return filters;
-  } else if (value) {
-    //case 2: value to search
-    return `filters:[
-      ${
-        columnsToFilter.length > 0 //user select a specific column to filter?
-          ? columnsToFilter.map((column) => {
-              return `{mod: LK col: "${column}" val: "${value}"}`;
-            })
-          : columns.map((column) => {
-              // user didn't select a specific column to filter
-              return column.filter
-                ? `{mod: LK col:"${column.accessor}" val: "${value}"}`
-                : ``;
-            })
+  let globalFilter = ``;
+  if (value) {
+    if (defaultFilter) {
+      if (columnsToFilter.length > 0) {
+        // Merge similar filters
+        globalFilter = `filters: [${defaultFilter.map((filter) => {
+          if (columnsToFilter.includes(filter.col)) {
+            return `{ mod: ${filter.mod} col: "${filter.col}" val: "${filter.val} ${value}" }`;
+          } else {
+            return `{ mod: ${filter.mod} col: "${filter.col}" val: "${filter.val}" }`;
+          }
+        })}] disjunctionFilters: true `;
+      } else {
+        let col = [];
+        columns.map((column) => col.push(column.accessor));
+        // Extract columns name, ommit id colum and Merge similar filters
+        globalFilter = `filters: [${defaultFilter.map((filter) => {
+          if (col.includes(filter.col)) {
+            return `{ mod: ${filter.mod} col: "${filter.col}" val: "${filter.val} ${value}" }`;
+          } else {
+            return `{ mod: ${filter.mod} col: "${filter.col}" val: "${filter.val}" }`;
+          }
+        })}
+          ${col.map((filter) => {
+            if (filter != "id") {
+              return `{ mod: LK col: "${filter}" val: "${value}" }`;
+            }
+          })}] disjunctionFilters: true `;
       }
-    ]`;
-  } else {
-    //case 3: not filters
-    return ``;
+    } else if (columnsToFilter.length > 0) {
+      globalFilter = `filters: [${columnsToFilter.map(
+        (filter) => `{ mod: LK col: "${filter}" val: "${value}" }`
+      )}] disjunctionFilters: true `;
+    } else {
+      globalFilter = `filters: [${columns.map((column) => {
+        if (column.filter) {
+          return `{ mod: LK col: "${column.accessor}" val: "${value}" }`;
+        }
+      })}] disjunctionFilters: true`;
+    }
+  } else if (defaultFilter) {
+    globalFilter = `filters: [${defaultFilter.map(
+      (filter) =>
+        `{ mod: ${filter.mod} col: "${filter.col}" val: "${filter.val}" }`
+    )}] disjunctionFilters: true`;
   }
+  return globalFilter;
 };
 
 export const ClientGraphQL = (
@@ -85,6 +89,7 @@ export const ClientGraphQL = (
             find${entity}List(
               page:{ number: ${page} size: ${pageSize}}
               ${prepareFilters(value, columnsToFilter, defaultFilter, columns)}
+              sort: { col: "id", mod: DES }
               ){
               totalElements
               totalPages

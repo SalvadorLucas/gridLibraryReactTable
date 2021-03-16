@@ -6,7 +6,6 @@ import Progress from "./components/Atoms/Progress";
 import Table from "./components/Organisms/Table";
 // OTHER
 import { extractColumns } from "./Utils/Client";
-import Pagination from "./components/Organisms/Pagination";
 
 class MasterDetail extends React.Component {
   constructor(props) {

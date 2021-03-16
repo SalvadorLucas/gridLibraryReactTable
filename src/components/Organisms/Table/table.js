@@ -449,7 +449,7 @@ function Table(props) {
         Client={Client}
         uri={uri}
         entity={entity}
-        columns={columns}
+        columns={props.columns}
         callstandard={callstandard}
         defaultfilter={defaultfilter}
         columnsToFilter={columnstoFilter}

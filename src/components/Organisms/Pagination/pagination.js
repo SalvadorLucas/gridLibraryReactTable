@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
 const PaginationOrganism = React.forwardRef((props, ref) => {
   // Properties of the organism
   const {
-    Client,
+    FetchFunction,
     uri,
     entity,
     columns,
@@ -43,42 +43,38 @@ const PaginationOrganism = React.forwardRef((props, ref) => {
     filterValue,
     pages,
     pageSize,
-    changePageSize,
+    setPageSize,
     ...rest
   } = props;
-  const [goToPageNumber, setGoToPageNumber] = React.useState(1);
+  const [goToPageNumber, setGoToPageNumber] = React.useState(page);
   const classes = useStyles();
   const handleChange = (event) => {
-    changePageSize(event.target.value);
-    uri
-      ? Client(
-          uri,
-          entity,
-          columns,
-          callstandard,
-          1,
-          event.target.value,
-          columnsToFilter,
-          filterValue,
-          defaultfilter
-        )
-      : Client(1, event.target.value, columnsToFilter, filterValue);
+    setPageSize(event.target.value);
+    FetchFunction(
+      uri,
+      entity,
+      columns,
+      callstandard,
+      1,
+      event.target.value,
+      columnsToFilter,
+      filterValue,
+      defaultfilter
+    );
   };
   const handleGoTo = (event) => {
     event.preventDefault();
-    uri
-      ? Client(
-          uri,
-          entity,
-          columns,
-          callstandard,
-          goToPageNumber,
-          pageSize,
-          columnsToFilter,
-          filterValue,
-          defaultfilter
-        )
-      : Client(goToPageNumber, pageSize, columnsToFilter, filterValue);
+    FetchFunction(
+      uri,
+      entity,
+      columns,
+      callstandard,
+      goToPageNumber,
+      pageSize,
+      columnsToFilter,
+      filterValue,
+      defaultfilter
+    );
   };
   const onChage = (event) => {
     setGoToPageNumber(Number(event.target.value));

@@ -1,5 +1,6 @@
 import React from "react";
-// CORE
+import PropTypes from "prop-types";
+// CORE COMPONENTS
 import {
   TableContainer,
   TableHead,
@@ -8,12 +9,11 @@ import {
   TableCell,
   Grid,
   Typography,
-  TextField,
-  Checkbox,
   IconButton,
+  Table,
+  Box,
 } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import MaUTable from "@material-ui/core/Table";
 import {
   useTable,
   useSortBy,
@@ -21,7 +21,6 @@ import {
   useExpanded,
   useRowSelect,
 } from "react-table";
-import { matchSorter } from "match-sorter";
 // Icons
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
@@ -29,141 +28,71 @@ import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import SortIcon from "@material-ui/icons/Sort";
 // OTHER
 import Toolbar from "../ToolBar";
-import Pagination from "../Pagination";
+import {
+  DefaultFilterAtom,
+  fuzzyTextFilterFn,
+} from "../../Atoms/DefaultFilter/defaultfilter";
+import IndeterminateCheckbox from "../../Atoms/Checkbox";
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    maxHeight: 500,
-  },
-  table: {
-    width: "100%",
-    maxHeight: "100%",
-  },
-  actions: {
-    width: "fit-content",
-    border: `1px solid ${theme.palette.divider}`,
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: theme.palette.background.paper,
-    color: theme.palette.text.secondary,
-    "& svg": {
-      margin: theme.spacing(1.5),
-    },
-    "& hr": {
-      margin: theme.spacing(0, 0.5),
-    },
-  },
-}));
-
-// UI for Row Selection
-const IndeterminateCheckbox = React.forwardRef(
-  ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = React.useRef();
-    const resolvedRef = ref || defaultRef;
-
-    React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate;
-    }, [resolvedRef, indeterminate]);
-    return (
-      <div>
-        <Checkbox size="small" color="primary" ref={resolvedRef} {...rest} />
-      </div>
-    );
-  }
-);
-
-// Define a default UI for filtering
-const DefaultColumnFilter = ({
-  column: { filterValue, preFilteredRows, setFilter },
-}) => {
-  const count = preFilteredRows.length;
-
-  return (
-    <TextField
-      fullWidth
-      size="small"
-      variant="outlined"
-      value={filterValue || ""}
-      onChange={(e) => {
-        setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-      }}
-      placeholder={`Search ${count} records...`}
-    />
-  );
-};
-
-const fuzzyTextFilterFn = (rows, id, filterValue) => {
-  return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] });
-};
-// Let the table remove the filter if the string is empty
-fuzzyTextFilterFn.autoRemove = (val) => !val;
-
-function Table(props) {
-  const classes = useStyles();
-  const [columnstoFilter, setColumnsToFilter] = React.useState([]);
-  const [filterValue, setFilterValue] = React.useState(null);
-  const [pageSize, setPageSize] = React.useState(10);
+//MAIN FUNCTION
+/*
+ @param props: component properties
+ @param ref: reference made by React.forward
+*/
+const TableGridAtom = React.forwardRef((props, ref) => {
   const {
     toolbar,
     data,
     uri,
     entity,
     title,
-    UpdateRowsSelected,
     page,
     pages,
     defaultfilter,
     toolbarActions,
     toolbarMobileActions,
-    actions,
+    rowActions,
     renderRowSubComponent,
-    Client,
+    FetchFunction,
     callstandard,
     select,
+    setColumnsToFilter,
+    setFilterValue,
     ...rest
   } = props;
-
+  // Special styles for make responsive the Actions column
+  const [width, setWidth] = React.useState(() => {
+    const nodesByRow = rowActions
+      ? rowActions({}, () => {}).props.children.length
+      : 0;
+    return (typeof nodesByRow === "number" && 30 * nodesByRow) || 15;
+  });
+  const useStyles = makeStyles({
+    container: {
+      maxHeight: "85vh",
+    },
+    row: {
+      minWidth: 100,
+      maxWidth: "100%",
+    },
+    actions: {
+      width: width,
+    },
+  });
+  const classes = useStyles();
+  // Save all columns to display (including actions, expandible and selectable if they are necessary)
   let newColumns = [];
-
-  const UpdateColumnsToFilter = (columns) => {
-    setColumnsToFilter(columns);
-  };
-
-  const UpdateFilterValue = (value) => {
-    setFilterValue(value);
-  };
-
-  // Function to refresh grid for developers
-  function refreshGrid() {
-    if (uri) {
-      Client({
-        uri,
-        entity,
-        columns: props.columns,
-        callstandard,
-        page,
-        pageSize,
-        columnsToFilter: props.columnsToFilter,
-        filterValue,
-        defaultfilter,
-      });
-    } else {
-      // fetch({ page: {...page}, filters: filters });
-    }
-  }
-
-  if (actions) {
+  rowActions &&
     newColumns.push({
       // Make an actions cell
-      Header: () => "Actions", // No header
+      Header: () => "Actions",
       id: "actions", // It needs an ID
       Cell: ({ row }) => (
         // Use Cell to render actions for each row.
-        <React.Fragment>{actions(row.original, refreshGrid)}</React.Fragment>
+        <Box>{rowActions(row.original, refreshGrid)}</Box>
       ),
     });
-  }
-
-  if (renderRowSubComponent) {
+  renderRowSubComponent &&
     newColumns.push({
       // Make an expander cell
       Header: () => null, // No header
@@ -183,20 +112,40 @@ function Table(props) {
         </span>
       ),
     });
-  }
-  // Format all columns
-  props.originalColumns.map((column) => {
-    newColumns.push(column);
-  });
+  newColumns = newColumns.concat(props.originalColumns);
 
-  let hiddenColumns = [];
-  // Prepare hidden columns
+  // Set hidden columns
+  const hiddenColumns = [];
   props.columns.map((column) => {
-    column.hidden ? hiddenColumns.push(column.accessor) : null;
+    column.hidden && hiddenColumns.push(column.accessor);
   });
+  !select && hiddenColumns.push("selectable");
+
+  function refreshGrid() {
+    FetchFunction(
+      uri,
+      entity,
+      props.columns,
+      callstandard,
+      page,
+      pageSize,
+      props.columnsToFilter,
+      filterValue,
+      defaultfilter
+    );
+  }
 
   // Prepare all columns
   const columns = React.useMemo(() => newColumns, []);
+
+  // Default column settings
+  const defaultColumn = React.useMemo(
+    () => ({
+      // Let's set up our default Filter UI
+      Filter: DefaultFilterAtom,
+    }),
+    []
+  );
 
   const filterTypes = React.useMemo(
     () => ({
@@ -218,17 +167,8 @@ function Table(props) {
     []
   );
 
-  const defaultColumn = React.useMemo(
-    () => ({
-      // Let's set up our default Filter UI
-      Filter: DefaultColumnFilter,
-    }),
-    []
-  );
-
-  const changePageSize = (newSize) => {
-    setPageSize(newSize);
-  };
+  // Let the table remove the filter if the string is empty
+  fuzzyTextFilterFn.autoRemove = (val) => !val;
 
   // Use the state and functions returned from useTable to build the UI
   const {
@@ -256,6 +196,7 @@ function Table(props) {
     useSortBy,
     useExpanded, // We can useExpanded to track the expanded state
     useRowSelect, // useRowSelect!
+    // useFlexLayout,
     // for sub components too!
     (hooks) => {
       hooks.visibleColumns.push((columns) => [
@@ -296,21 +237,17 @@ function Table(props) {
                   row.isSelected
                 ) {
                   return (
-                    <div>
-                      <IndeterminateCheckbox
-                        {...row.getToggleRowSelectedProps()}
-                      />
-                    </div>
+                    <IndeterminateCheckbox
+                      {...row.getToggleRowSelectedProps()}
+                    />
                   );
                 } else {
                   return (
-                    <div>
-                      <IndeterminateCheckbox
-                        checked={false}
-                        readOnly
-                        style={row.getToggleRowSelectedProps().style}
-                      />
-                    </div>
+                    <IndeterminateCheckbox
+                      checked={false}
+                      readOnly
+                      style={row.getToggleRowSelectedProps().style}
+                    />
                   );
                 }
               default:
@@ -322,96 +259,105 @@ function Table(props) {
       ]);
     }
   );
-  // Render the UI for your table
   return (
-    <React.Fragment>
-      {toolbar ? (
+    /* 
+     @prop data-testid: Id to use inside tablegrid.test.js file.
+     */
+    <div data-testid={"TableGridTestId"}>
+      {toolbar && (
         <Toolbar
           {...props}
           rowsSelected={selectedFlatRows}
-          title={title}
-          columns={props.columns}
-          columnsToFilter={columnstoFilter}
-          UpdateFilterValue={UpdateFilterValue}
-          UpdateColumnsToFilter={UpdateColumnsToFilter}
           allColumns={allColumns}
           getToggleHideAllColumnsProps={getToggleHideAllColumnsProps}
-          toolbarActions={toolbarActions ? toolbarActions : null}
           hiddenColumns={hiddenColumns}
-          pageSize={pageSize}
         />
-      ) : null}
+      )}
       <TableContainer className={classes.container}>
-        <MaUTable
+        <Table
           size={select ? "small" : "medium"}
-          stickyHeader
           {...getTableProps()}
-          className={classes.table}
+          stickyHeader
+          aria-label="sticky table"
         >
           <TableHead>
             {headerGroups.map((headerGroup) => (
               <TableRow {...headerGroup.getHeaderGroupProps()}>
+                {/* Set padding to selectable and expandible column, set sorting and default filter for others */}
                 {headerGroup.headers.map((column) =>
-                  column.id === "expander" ? (
-                    <TableCell
-                      {...column.getHeaderProps()}
-                      style={{ width: 10 }}
-                    >
+                  column.id.includes("expander") ||
+                  column.id.includes("selectable") ? (
+                    <TableCell {...column.getHeaderProps()} padding="checkbox">
+                      {/*Set pagind for checkbox and expandible column*/}
                       <Typography variant={"subtitle1"}>
                         {column.render("Header")}
                       </Typography>
                     </TableCell>
                   ) : (
-                    <TableCell {...column.getHeaderProps()}>
-                      <Grid
-                        container
-                        direction="row"
-                        justify="space-between"
-                        alignItems="center"
+                    (column.id.includes("actions") && ( //
+                      <TableCell
+                        {...column.getHeaderProps()}
+                        className={classes.actions}
                       >
-                        <Grid item xs={11} sm={11} md={11} lg={11} xl={11}>
-                          <Typography variant={"subtitle1"}>
-                            {column.render("Header")}
-                          </Typography>
-                        </Grid>
+                        <Typography variant={"subtitle1"}>
+                          {column.render("Header")}
+                        </Typography>
+                      </TableCell>
+                    )) || (
+                      <TableCell
+                        {...column.getHeaderProps()}
+                        className={classes.row}
+                      >
                         <Grid
-                          item
-                          xs={1}
-                          sm={1}
-                          md={1}
-                          lg={1}
-                          xl={1}
-                          {...column.getHeaderProps(
-                            column.getSortByToggleProps()
-                          )}
+                          container
+                          direction="row"
+                          justify="space-between"
+                          alignItems="center"
                         >
-                          {column.canSort ? (
-                            column.isSorted ? (
-                              column.isSortedDesc ? (
-                                <KeyboardArrowDownIcon />
+                          <Grid item xs={11} sm={11} md={11} lg={11} xl={11}>
+                            <Typography variant={"subtitle1"}>
+                              {column.render("Header")}
+                            </Typography>
+                          </Grid>
+                          <Grid
+                            item
+                            xs={1}
+                            sm={1}
+                            md={1}
+                            lg={1}
+                            xl={1}
+                            {...column.getHeaderProps(
+                              column.getSortByToggleProps()
+                            )}
+                          >
+                            {column.canSort ? (
+                              column.isSorted ? (
+                                column.isSortedDesc ? (
+                                  <KeyboardArrowDownIcon />
+                                ) : (
+                                  <ExpandLessIcon />
+                                )
                               ) : (
-                                <ExpandLessIcon />
+                                <SortIcon />
                               )
-                            ) : (
-                              <SortIcon />
-                            )
-                          ) : null}
+                            ) : null}
+                          </Grid>
+                          <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
+                            {column.canFilter ? column.render("Filter") : null}
+                          </Grid>
                         </Grid>
-                        <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
-                          {column.canFilter ? column.render("Filter") : null}
-                        </Grid>
-                      </Grid>
-                    </TableCell>
+                      </TableCell>
+                    )
                   )
                 )}
               </TableRow>
             ))}
           </TableHead>
           <TableBody {...getTableBodyProps()}>
-            {rows.map((row, i) => {
+            {rows.map((row, key) => {
               prepareRow(row);
               return (
-                <React.Fragment key={i}>
+                <React.Fragment key={key}>
                   <TableRow {...row.getRowProps()}>
                     {row.cells.map((cell) => {
                       return (
@@ -425,7 +371,7 @@ function Table(props) {
                     If the row is in an expanded state, render a row with a
                     column that fills the entire length of the table.
                   */}
-                  {row.isExpanded ? (
+                  {row.isExpanded && (
                     <TableRow>
                       <TableCell colSpan={visibleColumns.length}>
                         {/*
@@ -438,37 +384,19 @@ function Table(props) {
                         {props.renderRowSubComponent(row)}
                       </TableCell>
                     </TableRow>
-                  ) : null}
+                  )}
                 </React.Fragment>
               );
             })}
           </TableBody>
-        </MaUTable>
+        </Table>
       </TableContainer>
-      <Pagination
-        Client={Client}
-        uri={uri}
-        entity={entity}
-        columns={props.columns}
-        callstandard={callstandard}
-        defaultfilter={defaultfilter}
-        columnsToFilter={columnstoFilter}
-        page={page}
-        filterValue={filterValue}
-        pages={pages}
-        pageSize={pageSize}
-        changePageSize={changePageSize}
-      />
-    </React.Fragment>
-  );
-}
-
-function App(props) {
-  return (
-    <div>
-      <Table {...props} />
     </div>
   );
-}
+});
+// Type and required properties
+TableGridAtom.propTypes = {};
+// Default properties
+TableGridAtom.defaultProps = {};
 
-export default App;
+export default TableGridAtom;

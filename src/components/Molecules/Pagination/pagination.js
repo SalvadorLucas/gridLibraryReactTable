@@ -21,7 +21,7 @@ const PaginationMolecule = React.forwardRef((props, ref) => {
   const classes = useStyles();
   // Properties of the molecule
   const {
-    Client,
+    FetchFunction,
     uri,
     entity,
     columns,
@@ -34,21 +34,21 @@ const PaginationMolecule = React.forwardRef((props, ref) => {
     defaultfilter,
     ...rest
   } = props;
+
   const handleChange = (event, value) => {
-    uri
-      ? Client(
-          uri,
-          entity,
-          columns,
-          callstandard,
-          value,
-          pageSize,
-          columnsToFilter,
-          filterValue,
-          defaultfilter
-        )
-      : Client(value, pageSize, columnsToFilter, filterValue);
+    FetchFunction(
+      uri,
+      entity,
+      columns,
+      callstandard,
+      value,
+      pageSize,
+      columnsToFilter,
+      filterValue,
+      defaultfilter
+    );
   };
+
   return (
     /* 
      @prop data-testid: Id to use inside pagination.test.js file.
@@ -66,7 +66,7 @@ const PaginationMolecule = React.forwardRef((props, ref) => {
 });
 // Type and required properties
 PaginationMolecule.propTypes = {
-  Client: PropTypes.func.isRequired,
+  FetchFunction: PropTypes.func.isRequired,
   page: PropTypes.number,
   pages: PropTypes.number,
   entity: PropTypes.string,

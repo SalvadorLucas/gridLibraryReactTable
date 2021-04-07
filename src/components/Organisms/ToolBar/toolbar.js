@@ -126,17 +126,17 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
     pageSize,
     columnsToFilter,
     filterValue,
-    Client,
+    FetchFunction,
     rowsSelected,
     hiddenColumns,
     callstandard,
     defaultfilter,
-    UpdateFilterValue,
-    UpdateColumnsToFilter,
-    Removecolumnstofilter,
+    setFilterValue,
+    setColumnsToFilter,
     toolbarActions,
     toolbarMobileActions,
     data,
+    select,
     ...rest
   } = props;
   const searchInputRef = React.useRef(null);
@@ -148,17 +148,17 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
   const [selection, setSelection] = React.useState([]);
   const handleChangeSelection = (event) => {
-    UpdateColumnsToFilter(event.target.value);
+    setColumnsToFilter(event.target.value);
     setSelection(event.target.value);
   };
   const handleClearFilter = () => {
     searchInputRef.current.value = "";
     setSelection([]);
     setsearchvalue("");
-    UpdateFilterValue(null);
-    UpdateColumnsToFilter([]);
+    setFilterValue(null);
+    setColumnsToFilter([]);
     uri
-      ? Client(
+      ? FetchFunction(
           uri,
           entity,
           columns,
@@ -169,11 +169,11 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
           null,
           defaultfilter
         )
-      : Client(1, pageSize, [], null);
+      : FetchFunction(1, pageSize, [], null);
   };
   const refreshGrid = () => {
     uri
-      ? Client(
+      ? FetchFunction(
           uri,
           entity,
           columns,
@@ -184,7 +184,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
           filterValue,
           defaultfilter
         )
-      : Client(page, pageSize, columnsToFilter, filterValue);
+      : FetchFunction(page, pageSize, columnsToFilter, filterValue);
   };
   const handleSettingsMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -204,9 +204,9 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
   };
 
   const handleFilter = () => {
-    UpdateFilterValue(searchvalue);
+    setFilterValue(searchvalue);
     uri
-      ? Client(
+      ? FetchFunction(
           uri,
           entity,
           columns,
@@ -217,7 +217,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
           searchvalue,
           defaultfilter
         )
-      : Client(1, pageSize, columnsToFilter, searchvalue);
+      : FetchFunction(1, pageSize, columnsToFilter, searchvalue);
   };
 
   const handleChange = (event) => {
@@ -423,7 +423,7 @@ ToolBarOrganism.propTypes = {
   columns: PropTypes.array,
   pagesize: PropTypes.number,
   columnstofilter: PropTypes.array,
-  Client: PropTypes.func.isRequired,
+  FetchFunction: PropTypes.func.isRequired,
 };
 // Default properties
 ToolBarOrganism.defaultProps = {};

@@ -57,7 +57,7 @@ const CustomColumnsAtom = React.forwardRef((props, ref) => {
         MenuProps={MenuProps}
       >
         {allColumns.map(column => (
-          column.isVisible ?
+          !column.hidden ?
             <MenuItem key={column.id} value={column.id}>
               <Checkbox color="default" {...column.getToggleHiddenProps()} />
               <ListItemText primary={column.id} />

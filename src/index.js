@@ -31,6 +31,8 @@ class MasterDetail extends React.Component {
       columns: extractColumns(this.props.columns),
       originalColumns: this.props.columns,
       data: this.props.data,
+      indexing: this.props.indexing,
+      globalFilter: this.props.globalfilter,
       select: this.props.select,
       renderRowSubComponent: this.props.detailcomponent,
     };
@@ -72,7 +74,7 @@ class MasterDetail extends React.Component {
     page,
     pageSize,
     columnsToFilter,
-    value,
+    filterValue,
     defaultFilter
   ) {
     if (uri) {
@@ -84,7 +86,7 @@ class MasterDetail extends React.Component {
         page,
         pageSize,
         columnsToFilter,
-        value,
+        filterValue,
         defaultFilter
       );
       this.setState({
@@ -96,10 +98,10 @@ class MasterDetail extends React.Component {
         pages: data.pages,
         pageSize: pageSize,
         columnsToFilter: columnsToFilter,
-        filterValue: value,
+        filterValue: filterValue,
       });
     } else {
-      this.props.fetch(page, pageSize, columnsToFilter, value);
+      this.props.fetch(page, pageSize, columnsToFilter, filterValue);
     }
   }
 
@@ -137,13 +139,15 @@ class MasterDetail extends React.Component {
                 setColumnsToFilter={this.setColumnsToFilter}
                 setFilterValue={this.setFilterValue}
               />
-              <Pagination
-                {...this.state}
-                pages={this.props.totalPages}
-                page={this.props.page}
-                FetchFunction={this.FetchFunction}
-                setPageSize={this.setPageSize}
-              />
+              {this.props.pagination && (
+                <Pagination
+                  {...this.state}
+                  pages={this.props.totalPages}
+                  page={this.props.page}
+                  FetchFunction={this.FetchFunction}
+                  setPageSize={this.setPageSize}
+                />
+              )}
             </Grid>
           ) : (
             <Grid item xs={12} sm={12} md={12} lg={12} xl={12}>
@@ -153,11 +157,13 @@ class MasterDetail extends React.Component {
                 setColumnsToFilter={this.setColumnsToFilter}
                 setFilterValue={this.setFilterValue}
               />
-              <Pagination
-                {...this.state}
-                FetchFunction={this.FetchFunction}
-                setPageSize={this.setPageSize}
-              />
+              {this.props.pagination && (
+                <Pagination
+                  {...this.state}
+                  FetchFunction={this.FetchFunction}
+                  setPageSize={this.setPageSize}
+                />
+              )}
             </Grid>
           )}
         </Grid>

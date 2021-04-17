@@ -22,7 +22,7 @@ import FilterICon from "../../Atoms/Icons/addFilter";
 import RemoveFilterICon from "../../Atoms/Icons/removeFilter";
 import CSVExport from "../../../functions/csv";
 // ICONS
-import SettingsIcon from "@material-ui/icons/Settings";
+import BuildIcon from "@material-ui/icons/Build";
 import SearchIcon from "@material-ui/icons/Search";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
@@ -137,6 +137,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
     toolbarMobileActions,
     data,
     select,
+    globalFilter,
     ...rest
   } = props;
   const searchInputRef = React.useRef(null);
@@ -186,6 +187,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
         )
       : FetchFunction(page, pageSize, columnsToFilter, filterValue);
   };
+
   const handleSettingsMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -286,7 +288,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
           aria-haspopup="true"
           color="inherit"
         >
-          <SettingsIcon />
+          <BuildIcon />
         </IconButton>
         <p>Settings</p>
       </MenuItem>
@@ -309,79 +311,83 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
           <Typography className={classes.title} variant="h6" noWrap>
             {title}
           </Typography>
-          <div className={classes.search}>
-            <InputBase
-              inputRef={searchInputRef}
-              placeholder="Search…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              defaultValue={filterValue}
-              onChange={handleChange}
-              inputProps={{ "aria-label": "search" }}
-            />
-            <IconButton
-              color="inherit"
-              className={classes.searchIcon}
-              onClick={handleFilter}
-            >
-              <SearchIcon />
-            </IconButton>
-          </div>
-          <div className={classes.icons}>
-            {/* ENABLE BUTTON TO CLEAR FILTERS */}
-            {columnsToFilter.length > 0 || searchvalue ? (
-              <IconButton color={"inherit"} onClick={handleClearFilter}>
-                <RemoveFilterICon color={"inherit"} />
-              </IconButton>
-            ) : (
-              <IconButton color={"inherit"} onClick={() => {}}>
-                <FilterICon color={"inherit"} />
-              </IconButton>
-            )}
-          </div>
-          <div className={classes.grow}>
-            <FormControl
-              className={classes.formControl}
-              data-testid={"GlobalFilterTestId"}
-              ref={ref}
-            >
-              <Select
-                labelId="demo-mutiple-checkbox-label"
-                id="demo-mutiple-checkbox"
-                multiple
-                variant="standard"
-                value={selection}
-                onChange={handleChangeSelection}
-                input={<Input />}
-                renderValue={(selected) => (
-                  <div className={classes.chips}>
-                    {selected.map((value) => (
-                      <Chip
-                        key={value}
-                        label={value}
-                        className={classes.chip}
-                      />
-                    ))}
-                  </div>
+          {(globalFilter && (
+            <React.Fragment>
+              <div className={classes.search}>
+                <InputBase
+                  inputRef={searchInputRef}
+                  placeholder="Search…"
+                  classes={{
+                    root: classes.inputRoot,
+                    input: classes.inputInput,
+                  }}
+                  defaultValue={filterValue}
+                  onChange={handleChange}
+                  inputProps={{ "aria-label": "search" }}
+                />
+                <IconButton
+                  color="inherit"
+                  className={classes.searchIcon}
+                  onClick={handleFilter}
+                >
+                  <SearchIcon />
+                </IconButton>
+              </div>
+              <div className={classes.icons}>
+                {/* ENABLE BUTTON TO CLEAR FILTERS */}
+                {columnsToFilter.length > 0 || searchvalue ? (
+                  <IconButton color={"inherit"} onClick={handleClearFilter}>
+                    <RemoveFilterICon color={"inherit"} />
+                  </IconButton>
+                ) : (
+                  <IconButton color={"inherit"} onClick={() => {}}>
+                    <FilterICon color={"inherit"} />
+                  </IconButton>
                 )}
-                MenuProps={MenuProps}
-              >
-                {columns.map((column, key) =>
-                  column.filter ? (
-                    <MenuItem key={key} value={column.accessor}>
-                      <Checkbox
-                        color="default"
-                        checked={selection.indexOf(column.accessor) > -1}
-                      />
-                      <ListItemText primary={column.Header} />
-                    </MenuItem>
-                  ) : null
-                )}
-              </Select>
-            </FormControl>
-          </div>
+              </div>
+              <div className={classes.grow}>
+                <FormControl
+                  className={classes.formControl}
+                  data-testid={"GlobalFilterTestId"}
+                  ref={ref}
+                >
+                  <Select
+                    labelId="demo-mutiple-checkbox-label"
+                    id="demo-mutiple-checkbox"
+                    multiple
+                    variant="standard"
+                    value={selection}
+                    onChange={handleChangeSelection}
+                    input={<Input />}
+                    renderValue={(selected) => (
+                      <div className={classes.chips}>
+                        {selected.map((value) => (
+                          <Chip
+                            key={value}
+                            label={value}
+                            className={classes.chip}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    MenuProps={MenuProps}
+                  >
+                    {columns.map((column, key) =>
+                      column.filter ? (
+                        <MenuItem key={key} value={column.accessor}>
+                          <Checkbox
+                            color="default"
+                            checked={selection.indexOf(column.accessor) > -1}
+                          />
+                          <ListItemText primary={column.Header} />
+                        </MenuItem>
+                      ) : null
+                    )}
+                  </Select>
+                </FormControl>
+              </div>
+            </React.Fragment>
+          )) || <div className={classes.grow} />}
           <div className={classes.sectionDesktop}>
             {toolbarActions ? toolbarActions(rowsSelected, refreshGrid) : null}
             <IconButton onClick={csvExport} color="inherit">
@@ -395,7 +401,7 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
               onClick={handleSettingsMenuOpen}
               color="inherit"
             >
-              <SettingsIcon />
+              <BuildIcon />
             </IconButton>
           </div>
           <div className={classes.sectionMobile}>

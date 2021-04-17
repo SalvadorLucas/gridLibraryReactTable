@@ -47,6 +47,7 @@ const TableGridAtom = React.forwardRef((props, ref) => {
     entity,
     title,
     page,
+    pageSize,
     pages,
     defaultfilter,
     toolbarActions,
@@ -56,10 +57,15 @@ const TableGridAtom = React.forwardRef((props, ref) => {
     FetchFunction,
     callstandard,
     select,
+    columnsToFilter,
+    defaultFilter,
     setColumnsToFilter,
     setFilterValue,
+    filterValue,
+    indexing,
     ...rest
   } = props;
+
   // Special styles for make responsive the Actions column
   const [width, setWidth] = React.useState(() => {
     const nodesByRow = rowActions
@@ -67,6 +73,7 @@ const TableGridAtom = React.forwardRef((props, ref) => {
       : 0;
     return (typeof nodesByRow === "number" && 30 * nodesByRow) || 15;
   });
+
   const useStyles = makeStyles({
     container: {
       maxHeight: "85vh",
@@ -79,6 +86,7 @@ const TableGridAtom = React.forwardRef((props, ref) => {
       width: width,
     },
   });
+
   const classes = useStyles();
   // Save all columns to display (including actions, expandible and selectable if they are necessary)
   let newColumns = [];
@@ -121,22 +129,10 @@ const TableGridAtom = React.forwardRef((props, ref) => {
   });
   !select && hiddenColumns.push("selectable");
 
-  function refreshGrid() {
-    FetchFunction(
-      uri,
-      entity,
-      props.columns,
-      callstandard,
-      page,
-      pageSize,
-      props.columnsToFilter,
-      filterValue,
-      defaultfilter
-    );
-  }
+  function refreshGrid() {}
 
   // Prepare all columns
-  const columns = React.useMemo(() => newColumns, []);
+  const columns = React.useMemo(() => newColumns, [pageSize]);
 
   // Default column settings
   const defaultColumn = React.useMemo(
@@ -210,6 +206,7 @@ const TableGridAtom = React.forwardRef((props, ref) => {
               case "multi":
                 return (
                   <IndeterminateCheckbox
+                    indexing={indexing}
                     color="primary"
                     {...getToggleAllRowsSelectedProps()}
                   />
@@ -227,7 +224,9 @@ const TableGridAtom = React.forwardRef((props, ref) => {
               case "multi":
                 return (
                   <IndeterminateCheckbox
+                    indexing={indexing}
                     color="primary"
+                    index={row.index}
                     {...row.getToggleRowSelectedProps()}
                   />
                 );
@@ -238,6 +237,8 @@ const TableGridAtom = React.forwardRef((props, ref) => {
                 ) {
                   return (
                     <IndeterminateCheckbox
+                      indexing={indexing}
+                      index={row.index}
                       {...row.getToggleRowSelectedProps()}
                     />
                   );
@@ -245,6 +246,8 @@ const TableGridAtom = React.forwardRef((props, ref) => {
                   return (
                     <IndeterminateCheckbox
                       checked={false}
+                      indexing={indexing}
+                      index={row.index}
                       readOnly
                       style={row.getToggleRowSelectedProps().style}
                     />

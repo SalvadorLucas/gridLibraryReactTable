@@ -1,6 +1,6 @@
 {
   "name": "ebs-grid-lib",
-  "version": "0.2.9",
+  "version": "0.2.12",
   "description": "ebs-grid-lib React component",
   "main": "lib/index.js",
   "files": [
@@ -18,19 +18,21 @@
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server"
   },
-  "dependencies": {},
+  "dependencies": {
+    "match-sorter": "^6.3.0",
+    "@material-ui/lab": "^4.0.0-alpha.57",
+    "babel-runtime": "^6.26.0",
+    "react-table": "^7.6.3"
+  },
   "peerDependencies": {
     "react": "16.x",
     "@apollo/client": "^3.3.11",
     "@apollo/react-hoc": "^4.0.0",
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
-    "@material-ui/lab": "^4.0.0-alpha.57",
     "classnames": "^2.2.6",
     "graphql": "^15.5.0",
-    "lodash": "^4.17.15",
-    "match-sorter": "^6.3.0",
-    "react-table": "^7.6.3"
+    "lodash": "^4.17.15"
   },
   "devDependencies": {
     "axios": "^0.21.1",

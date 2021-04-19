@@ -129,7 +129,19 @@ const TableGridAtom = React.forwardRef((props, ref) => {
   });
   !select && hiddenColumns.push("selectable");
 
-  function refreshGrid() {}
+  function refreshGrid() {
+    FetchFunction(
+      uri,
+      entity,
+      columns,
+      callstandard,
+      page,
+      pageSize,
+      columnsToFilter,
+      filterValue,
+      defaultFilter
+    )
+  }
 
   // Prepare all columns
   const columns = React.useMemo(() => newColumns, [pageSize]);

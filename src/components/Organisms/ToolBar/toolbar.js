@@ -158,34 +158,30 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
     setsearchvalue("");
     setFilterValue(null);
     setColumnsToFilter([]);
-    uri
-      ? FetchFunction(
-          uri,
-          entity,
-          columns,
-          callstandard,
-          1,
-          pageSize,
-          [],
-          null,
-          defaultfilter
-        )
-      : FetchFunction(1, pageSize, [], null);
+    FetchFunction(
+      uri,
+      entity,
+      columns,
+      callstandard,
+      1,
+      pageSize,
+      [],
+      null,
+      defaultfilter
+    );
   };
   const refreshGrid = () => {
-    uri
-      ? FetchFunction(
-          uri,
-          entity,
-          columns,
-          callstandard,
-          page,
-          pageSize,
-          columnsToFilter,
-          filterValue,
-          defaultfilter
-        )
-      : FetchFunction(page, pageSize, columnsToFilter, filterValue);
+    FetchFunction(
+      uri,
+      entity,
+      columns,
+      callstandard,
+      page,
+      pageSize,
+      columnsToFilter,
+      filterValue,
+      defaultfilter
+    );
   };
 
   const handleSettingsMenuOpen = (event) => {
@@ -207,19 +203,17 @@ const ToolBarOrganism = React.forwardRef((props, ref) => {
 
   const handleFilter = () => {
     setFilterValue(searchvalue);
-    uri
-      ? FetchFunction(
-          uri,
-          entity,
-          columns,
-          callstandard,
-          1,
-          pageSize,
-          columnsToFilter,
-          searchvalue,
-          defaultfilter
-        )
-      : FetchFunction(1, pageSize, columnsToFilter, searchvalue);
+    FetchFunction(
+      uri,
+      entity,
+      columns,
+      callstandard,
+      1,
+      pageSize,
+      columnsToFilter,
+      searchvalue,
+      defaultfilter
+    );
   };
 
   const handleChange = (event) => {
